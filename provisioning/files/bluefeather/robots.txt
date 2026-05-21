@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /wp-admin/
+Disallow: /wp-content/uploads/private/
+Disallow: /client-reports/
+Disallow: /.git/
+Sitemap: http://www.bluefeather.com/sitemap.xml

@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /portal/
+Disallow: /internal/
+Disallow: /backup/
+Disallow: /admin/
+Sitemap: http://www.silvercompany.com/sitemap.xml
