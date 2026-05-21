@@ -1,0 +1,424 @@
+# ─────────────────────────────────────────────
+#  MACHINE 1 - inv1
+# ─────────────────────────────────────────────
+- name: init machine inv1
+  hosts:
+    - inv1
+  become: true
+
+  tasks:
+
+  # ─── Disable unattended-upgrades─────────────────────────────
+
+    - name: Disable unattended-upgrades during provisioning
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      failed_when: false
+
+    - name: Kill leftover apt/dpkg processes
+      ansible.builtin.shell: |
+        pkill -9 apt || true
+        pkill -9 dpkg || true
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for apt lock to be released
+      ansible.builtin.shell: >
+        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
+        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
+          sleep 3
+        done
+      changed_when: false
+      failed_when: false
+
+
+
+    # apt packages
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+          - pipx
+          - nodejs
+          - npm
+          - git
+          - wget
+          - curl
+          - jq
+          - unzip
+          - zip
+          - build-essential
+          - firefox
+          - chromium
+          - libimage-exiftool-perl
+          - ffmpeg
+          - imagemagick
+        state: present
+        update_cache: 'yes'
+
+    # ─── Tor Browser ────────────────────────────────────────────
+    - name: Add Tor Project apt repository key
+      ansible.builtin.shell:
+        cmd: >
+          wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc |
+          gpg --dearmor -o /etc/apt/keyrings/tor.gpg
+        creates: /etc/apt/keyrings/tor.gpg
+
+    - name: Add Tor Project apt repository
+      ansible.builtin.shell:
+        cmd: >
+          echo
+          "deb [signed-by=/etc/apt/keyrings/tor.gpg]
+          https://deb.torproject.org/torproject.org noble main" |
+          tee /etc/apt/sources.list.d/tor.list > /dev/null
+        creates: /etc/apt/sources.list.d/tor.list
+
+    - name: Update apt after adding Tor repo
+      ansible.builtin.apt:
+        update_cache: 'yes'
+
+    - name: Install Tor Browser launcher
+      ansible.builtin.apt:
+        name:
+          - tor
+          - torbrowser-launcher
+        state: present
+
+    # ─── SpiderFoot ─────────────────────────────────────────────
+    - name: Clone SpiderFoot from GitHub
+      ansible.builtin.git:
+        repo: https://github.com/smicallef/spiderfoot.git
+        dest: /opt/spiderfoot
+        version: master
+
+    - name: Install SpiderFoot dependencies
+      ansible.builtin.pip:
+        requirements: /opt/spiderfoot/requirements.txt
+        executable: pip3
+        extra_args: --break-system-packages --ignore-installed
+
+    # ─── Sherlock ───────────────────────────────────────────────
+    - name: Install Sherlock via pip
+      ansible.builtin.pip:
+        name: sherlock-project
+        executable: pip3
+        extra_args: --break-system-packages
+
+    # ─── /etc/hosts entries for simulated domains (inv1) ────────
+    - name: Add simulated domain entries to /etc/hosts on inv1
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} KYPO OSINT LAB DOMAINS"
+        block: |
+          192.168.10.10  www.silvercompany.com silvercompany.com
+          192.168.10.10  www.bluefeather.com bluefeather.com
+          192.168.10.10  www.famebook.com famebook.com
+
+  # ─── Role ─────────────────────────────────────────────────────
+  roles:
+    - role: user-access
+      user_access_username: user
+      user_access_password: 'Password123'
+      user_access_sudo: true
+
+
+# ─────────────────────────────────────────────
+#  MACHINE 2 - lab1
+# ─────────────────────────────────────────────
+- name: init machine lab1
+  hosts:
+    - lab1
+  become: true
+
+  tasks:
+    # ─── Disable unattended-upgrades─────────────────────────────
+
+    - name: Disable unattended-upgrades during provisioning
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      failed_when: false
+
+    - name: Kill leftover apt/dpkg processes
+      ansible.builtin.shell: |
+        pkill -9 apt || true
+        pkill -9 dpkg || true
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for apt lock to be released
+      ansible.builtin.shell: >
+        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
+        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
+          sleep 3
+        done
+      changed_when: false
+      failed_when: false
+
+
+    # ─── APT packages ───────────────────────────────────────────
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+          - pipx
+          - nodejs
+          - npm
+          - git
+          - wget
+          - curl
+          - jq
+          - unzip
+          - zip
+          - rsync
+          - build-essential
+          - apache2
+          - php
+          - libapache2-mod-php
+          - php-fpm
+          - php-cli
+          - openssh-server
+          - cron
+          - sqlite3
+          - openssl
+          - net-tools
+          - dnsutils
+          - python3-flask
+          - python3-gunicorn
+        state: present
+        update_cache: 'yes'
+
+    # ─── Enable Apache modules FIRST (before any vhost is enabled) ─
+    - name: Enable Apache headers module
+      ansible.builtin.command:
+        cmd: a2enmod headers
+        creates: /etc/apache2/mods-enabled/headers.load
+
+    - name: Enable Apache proxy modules
+      ansible.builtin.command:
+        cmd: a2enmod proxy proxy_http
+        creates: /etc/apache2/mods-enabled/proxy.load
+
+    # ─── Apache vhost config: silvercompany.com ─────────────────
+    - name: Create silvercompany webroot
+      ansible.builtin.file:
+        path: /var/www/silvercompany
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy silvercompany index.html
+      ansible.builtin.copy:
+        src: files/silvercompany/index.html
+        dest: /var/www/silvercompany/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy silvercompany robots.txt
+      ansible.builtin.copy:
+        src: files/silvercompany/robots.txt
+        dest: /var/www/silvercompany/robots.txt
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy silvercompany Apache vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/silvercompany.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.silvercompany.com
+              ServerAlias silvercompany.com
+              DocumentRoot /var/www/silvercompany
+              DirectoryIndex index.html
+
+              <Directory /var/www/silvercompany>
+                  Options -Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Header always set X-Powered-By "PHP/8.3.1"
+              Header always set X-Generator "WordPress/6.4.2"
+
+              ErrorLog ${APACHE_LOG_DIR}/silvercompany_error.log
+              CustomLog ${APACHE_LOG_DIR}/silvercompany_access.log combined
+          </VirtualHost>
+
+    - name: Enable silvercompany vhost
+      ansible.builtin.command:
+        cmd: a2ensite silvercompany.conf
+        creates: /etc/apache2/sites-enabled/silvercompany.conf
+
+    # ─── Apache vhost config: bluefeather.com ───────────────────
+    - name: Create bluefeather webroot
+      ansible.builtin.file:
+        path: /var/www/bluefeather
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy bluefeather index.html
+      ansible.builtin.copy:
+        src: files/bluefeather/index.html
+        dest: /var/www/bluefeather/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather robots.txt
+      ansible.builtin.copy:
+        src: files/bluefeather/robots.txt
+        dest: /var/www/bluefeather/robots.txt
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather Apache vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/bluefeather.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.bluefeather.com
+              ServerAlias bluefeather.com
+              DocumentRoot /var/www/bluefeather
+              DirectoryIndex index.html
+
+              <Directory /var/www/bluefeather>
+                  Options -Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Header always set X-Powered-By "PHP/8.3.1"
+              Header always set X-Generator "Joomla! 4.3"
+
+              ErrorLog ${APACHE_LOG_DIR}/bluefeather_error.log
+              CustomLog ${APACHE_LOG_DIR}/bluefeather_access.log combined
+          </VirtualHost>
+
+    - name: Enable bluefeather vhost
+      ansible.builtin.command:
+        cmd: a2ensite bluefeather.conf
+        creates: /etc/apache2/sites-enabled/bluefeather.conf
+
+    # ─── Famebook — Flask social media app ──────────────────────
+    - name: Create Famebook app directory
+      ansible.builtin.file:
+        path: /opt/famebook
+        state: directory
+        mode: '0755'
+
+    - name: Deploy Famebook Flask application
+      ansible.builtin.copy:
+        src: files/famebook/app.py
+        dest: /opt/famebook/app.py
+        mode: '0644'
+
+    - name: Create Famebook systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/famebook.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Famebook Social Media Simulation (Flask)
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/famebook/app.py
+          WorkingDirectory=/opt/famebook
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable and start Famebook service
+      ansible.builtin.systemd:
+        name: famebook
+        daemon_reload: true
+        enabled: true
+        state: started
+
+    - name: Deploy Famebook Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/famebook.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.famebook.com
+              ServerAlias famebook.com
+
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5000/
+              ProxyPassReverse / http://127.0.0.1:5000/
+
+              ErrorLog  ${APACHE_LOG_DIR}/famebook_error.log
+              CustomLog ${APACHE_LOG_DIR}/famebook_access.log combined
+          </VirtualHost>
+
+    - name: Enable famebook vhost
+      ansible.builtin.command:
+        cmd: a2ensite famebook.conf
+        creates: /etc/apache2/sites-enabled/famebook.conf
+
+    # ─── Disable default Apache vhost ───────────────────────────
+    - name: Disable default Apache vhost
+      ansible.builtin.command:
+        cmd: a2dissite 000-default.conf
+        removes: /etc/apache2/sites-enabled/000-default.conf
+
+    # ─── Test Apache config before reloading ────────────────────
+    - name: Test Apache configuration syntax
+      ansible.builtin.command:
+        cmd: apache2ctl configtest
+      register: apache_configtest
+      changed_when: false
+      failed_when: "'Syntax OK' not in apache_configtest.stderr"
+
+    # ─── Reload Apache to apply all vhosts ──────────────────────
+    - name: Reload Apache2
+      ansible.builtin.systemd:
+        name: apache2
+        state: reloaded
+
+
+    # ─── /etc/hosts entries on lab1 itself ──────────────────────
+    - name: Add simulated domain entries to /etc/hosts on lab1
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} KYPO OSINT LAB DOMAINS"
+        block: |
+          192.168.10.10  www.silvercompany.com silvercompany.com
+          192.168.10.10  www.bluefeather.com bluefeather.com
+          192.168.10.10  www.famebook.com famebook.com
+
+    # ─── Services ────────────────────────────────────────────────
+    - name: Enable OpenSSH server
+      ansible.builtin.systemd:
+        name: ssh
+        enabled: true
+        state: started
+
+    - name: Enable cron
+      ansible.builtin.systemd:
+        name: cron
+        enabled: true
+        state: started
+
+  # ─── Role ─────────────────────────────────────────────────────
+  roles:
+    - role: user-access
+      user_access_username: user
+      user_access_password: 'btcmp18@admin'
+      user_access_sudo: true
