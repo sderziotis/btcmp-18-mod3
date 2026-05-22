@@ -86,8 +86,8 @@ All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 | `tom.bekele` | Tom Bekele | Social Media Mgr, Blue Feather | Manages SilverCompany page, mentions API key |
 | `alexei.romanov` | Alexei Romanov | Head of Digital, Blue Feather | Email in bio, posts about exposed `.git` dirs and leaked API keys |
 | `sara.dimitriou` | Sara Dimitriou | HR Manager, Silver Company | Job listings, Athens team announcements |
-| `luca.ferrari` | Luca Ferrari | Freelance photographer | Travel posts, cross-reference with johnyskinny locations |
-| `johnyskinny` | Johny Skinny | — | Mountain trip post with photo (`johnyskinny_mountains.jpg`) |
+| `luca.ferrari` | Luca Ferrari | Freelance photographer | Travel posts, cross-reference with johny.skinny locations |
+| `johny.skinny` | Johny Skinny | — | Mountain trip post with photo (`johnyskinny_mountains.jpg`) |
 
 **Routes:**
 - `/` — main feed (all posts, chronological)
@@ -111,7 +111,7 @@ All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 | `tom.bekele` | Tom Bekele | Social Media Mgr, Blue Feather | Content campaigns |
 | `marco.villa` | Marco Villa | Journalist | Infosec articles, references BlueFeather |
 | `petra.novak` | Petra Novak | Content strategist | PostIt strategy posts |
-| `johnyskinny` | Johny Skinny | — | Beach post with photo (`johnyskinny_beach.jpg`) |
+| `johny.skinny` | Johny Skinny | — | Beach post with photo (`johnyskinny_beach.jpg`) |
 
 **Routes:**
 - `/` — main feed
@@ -129,9 +129,9 @@ Located at `/usr/local/lib/python3.12/dist-packages/sherlock_project/resources/c
 | Site | Profile URL pattern | Claimed username |
 |------|--------------------|--------------------|
 | Famebook | `http://famebook.com/profile/{}` | `dmitri.orlov` |
-| BlueFeather | `http://bluefeather.com/author/{}` | `johnyskinny` |
-| SilverCompany | `http://silvercompany.com/team/{}` | `johnyskinny` |
-| PostIt | `http://postit.com/profile/{}` | `johnyskinny` |
+| BlueFeather | `http://bluefeather.com/author/{}` | `johny.skinny` |
+| SilverCompany | `http://silvercompany.com/team/{}` | `johny.skinny` |
+| PostIt | `http://postit.com/profile/{}` | `johny.skinny` |
 
 ---
 
