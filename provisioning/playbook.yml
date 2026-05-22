@@ -87,11 +87,11 @@
         state: present
 
     # ─── SpiderFoot ─────────────────────────────────────────────
-    - name: Clone SpiderFoot from GitHub
+    - name: Clone SpiderFoot v3.5 from GitHub
       ansible.builtin.git:
         repo: https://github.com/smicallef/spiderfoot.git
         dest: /opt/spiderfoot
-        version: master
+        version: v3.5
 
     - name: Install SpiderFoot dependencies
       ansible.builtin.pip:
