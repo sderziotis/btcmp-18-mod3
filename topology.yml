@@ -2,14 +2,14 @@
 name: btcmp-18-main
 hosts:
   - name: inv1
-    flavor: standard.large
+    flavor: c2_r4_d40
     base_box:
       image: xubuntu-noble-x86_64
       mgmt_user: ubuntu
       mgmt_protocol: ssh
     hidden: false
   - name: lab1
-    flavor: standard.large
+    flavor: c2_r4_d40
     base_box:
       image: xubuntu-noble-x86_64
       mgmt_user: ubuntu
@@ -31,7 +31,7 @@ networks:
   - name: network-3
     cidr: 192.168.10.0/24
     accessible_by_user: true
-    hidden: false
+    hidden: true
 wan:
   name: network-1
   cidr: 10.10.10.0/24
