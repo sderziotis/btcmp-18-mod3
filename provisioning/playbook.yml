@@ -106,6 +106,53 @@
         executable: pip3
         extra_args: --break-system-packages
 
+    # ─── Sherlock custom_sites.json ─────────────────────────────
+    - name: Deploy custom_sites.json for Sherlock
+      ansible.builtin.copy:
+        dest: /usr/local/lib/python3.12/dist-packages/sherlock_project/resources/custom_sites.json
+        mode: '0644'
+        content: |
+          {
+            "Famebook": {
+              "errorType": "status_code",
+              "url": "http://famebook.com/profile/{}",
+              "urlMain": "http://famebook.com",
+              "username_claimed": "dmitri.orlov",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "BlueFeather": {
+              "errorType": "status_code",
+              "url": "http://bluefeather.com/author/{}",
+              "urlMain": "http://bluefeather.com",
+              "username_claimed": "johnyskinny",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "SilverCompany": {
+              "errorType": "status_code",
+              "url": "http://silvercompany.com/team/{}",
+              "urlMain": "http://silvercompany.com",
+              "username_claimed": "johnyskinny",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            }
+          }
+
+    # ─── Bashrc alias for Sherlock ───────────────────────────────
+    - name: Add Sherlock alias to user .bashrc
+      ansible.builtin.blockinfile:
+        path: /home/user/.bashrc
+        marker: "# {mark} KYPO SHERLOCK ALIAS"
+        block: |
+          alias sherlock='sherlock --json /usr/local/lib/python3.12/dist-packages/sherlock_project/resources/custom_sites.json'
+        create: false
+ 
+    - name: Source .bashrc for user
+      ansible.builtin.shell: |
+        echo "source /home/user/.bashrc" >> /home/user/.bash_profile
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+
     # ─── /etc/hosts entries for simulated domains (inv1) ────────
     - name: Add simulated domain entries to /etc/hosts on inv1
       ansible.builtin.blockinfile:
