@@ -152,32 +152,15 @@
         executable: /bin/bash
       changed_when: false
 
-    # ─── Case01 files → user Desktop ───────────────────────────
-    - name: Ensure user Desktop directory exists
-      ansible.builtin.file:
-        path: /home/user/Desktop
-        state: directory
-        owner: user
-        group: user
-        mode: '0755'
- 
-    - name: Copy desert.png to user Desktop
+    # ─── Case01 folder → user Desktop ──────────────────────────
+    - name: Copy case01 folder to user Desktop
       ansible.builtin.copy:
-        src: files/case01/desert.png
-        dest: /home/user/Desktop/desert.png
+        src: files/case01/
+        dest: /home/user/Desktop/case01/
         owner: user
         group: user
         mode: '0644'
- 
-    - name: Copy username.txt to user Desktop
-      ansible.builtin.copy:
-        src: files/case01/username.txt
-        dest: /home/user/Desktop/username.txt
-        owner: user
-        group: user
-        mode: '0644'
-
-
+        directory_mode: '0755'
 
     # ─── /etc/hosts entries for simulated domains (inv1) ────────
     - name: Add simulated domain entries to /etc/hosts on inv1
