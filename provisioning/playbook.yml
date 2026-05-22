@@ -133,6 +133,13 @@
               "urlMain": "http://silvercompany.com",
               "username_claimed": "johnyskinny",
               "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "PostIt": {
+              "errorType": "status_code",
+              "url": "http://postit.com/profile/{}",
+              "urlMain": "http://postit.com",
+              "username_claimed": "johnyskinny",
+              "username_unclaimed": "xnobodyhasthisname999x"
             }
           }
 
@@ -171,6 +178,7 @@
           192.168.10.10  www.silvercompany.com silvercompany.com
           192.168.10.10  www.bluefeather.com bluefeather.com
           192.168.10.10  www.famebook.com famebook.com
+          192.168.10.10  www.postit.com postit.com
 
   # ─── Role ─────────────────────────────────────────────────────
   roles:
@@ -372,13 +380,107 @@
         path: /opt/famebook
         state: directory
         mode: '0755'
-
+ 
     - name: Deploy Famebook Flask application
       ansible.builtin.copy:
         src: files/famebook/app.py
         dest: /opt/famebook/app.py
         mode: '0644'
-
+ 
+    - name: Create Famebook static directory
+      ansible.builtin.file:
+        path: /opt/famebook/static
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+ 
+    - name: Deploy mountain image to Famebook static (preserve metadata)
+      ansible.builtin.copy:
+        src: files/famebook/static/mountain.png
+        dest: /opt/famebook/static/johnyskinny_mountains.jpg
+        owner: www-data
+        group: www-data
+        mode: '0644'
+ 
+    # ─── PostIt — Flask social media app ────────────────────────
+    - name: Create PostIt app directory
+      ansible.builtin.file:
+        path: /opt/postit
+        state: directory
+        mode: '0755'
+ 
+    - name: Deploy PostIt Flask application
+      ansible.builtin.copy:
+        src: files/postit/app.py
+        dest: /opt/postit/app.py
+        mode: '0644'
+ 
+    - name: Create PostIt static directory
+      ansible.builtin.file:
+        path: /opt/postit/static
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+ 
+    - name: Deploy beach image to PostIt static (preserve metadata)
+      ansible.builtin.copy:
+        src: files/postit/static/beach.png
+        dest: /opt/postit/static/johnyskinny_beach.jpg
+        owner: www-data
+        group: www-data
+        mode: '0644'
+ 
+    - name: Create PostIt systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/postit.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=PostIt Social Media Simulation (Flask)
+          After=network.target
+ 
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/postit/app.py
+          WorkingDirectory=/opt/postit
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+ 
+          [Install]
+          WantedBy=multi-user.target
+ 
+    - name: Enable and start PostIt service
+      ansible.builtin.systemd:
+        name: postit
+        daemon_reload: true
+        enabled: true
+        state: started
+ 
+    - name: Deploy PostIt Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/postit.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.postit.com
+              ServerAlias postit.com
+ 
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5001/
+              ProxyPassReverse / http://127.0.0.1:5001/
+ 
+              ErrorLog  ${APACHE_LOG_DIR}/postit_error.log
+              CustomLog ${APACHE_LOG_DIR}/postit_access.log combined
+          </VirtualHost>
+ 
+    - name: Enable postit vhost
+      ansible.builtin.command:
+        cmd: a2ensite postit.conf
+        creates: /etc/apache2/sites-enabled/postit.conf
+ 
     - name: Create Famebook systemd service
       ansible.builtin.copy:
         dest: /etc/systemd/system/famebook.service
@@ -387,7 +489,7 @@
           [Unit]
           Description=Famebook Social Media Simulation (Flask)
           After=network.target
-
+ 
           [Service]
           ExecStart=/usr/bin/python3 /opt/famebook/app.py
           WorkingDirectory=/opt/famebook
@@ -395,17 +497,17 @@
           User=www-data
           Group=www-data
           Environment=FLASK_ENV=production
-
+ 
           [Install]
           WantedBy=multi-user.target
-
+ 
     - name: Enable and start Famebook service
       ansible.builtin.systemd:
         name: famebook
         daemon_reload: true
         enabled: true
         state: started
-
+ 
     - name: Deploy Famebook Apache reverse-proxy vhost
       ansible.builtin.copy:
         dest: /etc/apache2/sites-available/famebook.conf
@@ -414,20 +516,20 @@
           <VirtualHost *:80>
               ServerName www.famebook.com
               ServerAlias famebook.com
-
+ 
               ProxyPreserveHost On
               ProxyPass        / http://127.0.0.1:5000/
               ProxyPassReverse / http://127.0.0.1:5000/
-
+ 
               ErrorLog  ${APACHE_LOG_DIR}/famebook_error.log
               CustomLog ${APACHE_LOG_DIR}/famebook_access.log combined
           </VirtualHost>
-
+ 
     - name: Enable famebook vhost
       ansible.builtin.command:
         cmd: a2ensite famebook.conf
         creates: /etc/apache2/sites-enabled/famebook.conf
-
+ 
     # ─── Disable default Apache vhost ───────────────────────────
     - name: Disable default Apache vhost
       ansible.builtin.command:
@@ -458,6 +560,7 @@
           192.168.10.10  www.silvercompany.com silvercompany.com
           192.168.10.10  www.bluefeather.com bluefeather.com
           192.168.10.10  www.famebook.com famebook.com
+          192.168.10.10  www.postit.com postit.com
 
     # ─── Services ────────────────────────────────────────────────
     - name: Enable OpenSSH server
