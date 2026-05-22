@@ -67,8 +67,8 @@ USERS = {
       {"id":"pn3","text":"Prague in spring > everywhere else. Controversial? Maybe. Correct? Absolutely 🌸","ts":"2024-02-15 17:00","likes":321,"reposts":42,"comments":55,"image":None}
     ]
   },
-  "johnyskinny": {
-    "display": "Johny Skinny", "handle": "johnyskinny",
+  "johny.skinny": {
+    "display": "Johny Skinny", "handle": "johny.skinny",
     "avatar": "JS", "color": "#1d4ed8",
     "bio": "Beach life, cold beers, good music 🍺🌊 | Athens, Greece",
     "location": "Athens, Greece", "joined": "May 2022",

@@ -124,21 +124,21 @@
               "errorType": "status_code",
               "url": "http://bluefeather.com/author/{}",
               "urlMain": "http://bluefeather.com",
-              "username_claimed": "johnyskinny",
+              "username_claimed": "johny.skinny",
               "username_unclaimed": "xnobodyhasthisname999x"
             },
             "SilverCompany": {
               "errorType": "status_code",
               "url": "http://silvercompany.com/team/{}",
               "urlMain": "http://silvercompany.com",
-              "username_claimed": "johnyskinny",
+              "username_claimed": "johny.skinny",
               "username_unclaimed": "xnobodyhasthisname999x"
             },
             "PostIt": {
               "errorType": "status_code",
               "url": "http://postit.com/profile/{}",
               "urlMain": "http://postit.com",
-              "username_claimed": "johnyskinny",
+              "username_claimed": "johny.skinny",
               "username_unclaimed": "xnobodyhasthisname999x"
             }
           }

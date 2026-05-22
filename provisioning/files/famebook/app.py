@@ -104,8 +104,8 @@ USERS = {
       {"id":"lf3","text":"To every brand that DMs me 'we'd love to collab, we just can't pay': I see you. Stop it.","ts":"2024-02-10 11:20","likes":1204,"reposts":430,"comments":177,"image":None}
     ]
   },
-  "johnyskinny": {
-    "display": "Johny Skinny", "handle": "johnyskinny",
+  "johny.skinny": {
+    "display": "Johny Skinny", "handle": "johny.skinny",
     "avatar": "JS", "color": "#2d6a4f",
     "bio": "Just a guy who loves hiking, good vibes and cold beers 🍺🏔️ | Athens, Greece",
     "location": "Athens, Greece", "joined": "August 2021",
