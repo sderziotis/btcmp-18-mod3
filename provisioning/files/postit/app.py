@@ -67,6 +67,25 @@ USERS = {
       {"id":"pn3","text":"Prague in spring > everywhere else. Controversial? Maybe. Correct? Absolutely 🌸","ts":"2024-02-15 17:00","likes":321,"reposts":42,"comments":55,"image":None}
     ]
   },
+  "nikos.andreou": {
+    "display": "Nikos Andreou", "handle": "nikos.andreou",
+    "avatar": "NA", "color": "#0f766e",
+    "bio": "Head of Recruit @BlueFeatherMedia | Talent, hiring, people ops | London & Athens 🇬🇧🇬🇷 | recruit@bluefeather.com | ✈️ myblogspot.com",
+    "location": "London, UK", "joined": "February 2020",
+    "following": 214, "followers": 578,
+    "posts": [
+      {"id":"na1","text":"Exciting week — closed 3 senior hires in 5 days. The pipeline is finally moving. If you know talented digital strategists looking for a move, send them my way 📩 #hiring #recruitment","ts":"2024-03-15 09:30","likes":54,"reposts":8,"comments":7,"image":None},
+      {"id":"na2","text":"Hot take: cover letters are useless. Show me a portfolio or a project. Tell me what you built, broke, and fixed. That's the interview. #recruiting","ts":"2024-03-09 14:20","likes":187,"reposts":62,"comments":34,"image":None},
+      {"id":"na3","text":"Just wrapped up our Q1 hiring sprint at @BlueFeatherMedia. 7 new people joining across digital, content and analytics. Big quarter ahead 💪","ts":"2024-02-27 11:05","likes":93,"reposts":14,"comments":9,"image":None},
+      {"id":"na4","text":"Athens → London → back to Athens this week. Tired but the souvlaki makes it worth it every time 🇬🇷 #remotework #travel","ts":"2024-02-19 20:45","likes":141,"reposts":7,"comments":22,"image":None},
+      {"id":"na5","text":"Finally joined a proper golf club here. The courses around Attica are seriously underrated — stunning views and barely any crowds on weekday mornings. If you're into golf and based nearby, DM me 🏌️","ts":"2024-03-20 08:15","likes":38,"reposts":3,"comments":11,"image":None},
+      {"id":"na6","text":"Morning round done before 9am. There's something about hitting the fairway at sunrise that makes the whole workday easier. Love this country for that ☀️⛳","ts":"2024-03-13 07:50","likes":61,"reposts":5,"comments":8,"image":None},
+      {"id":"na7","text":"Weekend was perfect. 18 holes Saturday, lamb at a taverna Sunday. Can't think of a better way to reset before a big hiring week. Greece really does have it all 🇬🇷⛳","ts":"2024-03-11 19:30","likes":94,"reposts":9,"comments":17,"image":None},
+      {"id":"na8","text":"People ask me why I chose Athens over London full time. Honest answer: the weather, the food, and the fact that I can get a tee time on a Saturday without booking 3 weeks in advance 😄 #athens #golf","ts":"2024-03-01 12:45","likes":112,"reposts":14,"comments":23,"image":None},
+      {"id":"na9","text":"Handicap is slowly coming down. Months of early morning practice on the Greek coast will do that to you 🏌️‍♂️ #golf #improvement","ts":"2024-02-24 18:20","likes":47,"reposts":2,"comments":9,"image":None},
+      {"id":"na10","text":"Finally got around to writing up my Athens weekend guide — all the places tourists miss. Posted it on my blog if anyone's interested: myblogspot.com ✈️","ts":"2024-03-06 10:15","likes":29,"reposts":4,"comments":6,"image":None}
+    ]
+  },
   "johny.skinny": {
     "display": "Johny Skinny", "handle": "johny.skinny",
     "avatar": "JS", "color": "#1d4ed8",

@@ -10,7 +10,7 @@ USERS = {
   "marcus.hale": {
     "display": "Marcus Hale", "handle": "marcus.hale",
     "avatar": "MH", "color": "#1a2e44",
-    "bio": "CEO @SilverCompany | Aerospace & Manufacturing | Frankfurt 🇩🇪 | Opinions my own.",
+    "bio": "CEO @SilverCompany | Aerospace & Manufacturing | Frankfurt 🇩🇪 | m.hale@silvercompany.com",
     "location": "Frankfurt, Germany", "joined": "March 2019",
     "following": 312, "followers": 4821,
     "posts": [
@@ -23,7 +23,7 @@ USERS = {
   "elena.voss": {
     "display": "Elena Voss", "handle": "elena.voss",
     "avatar": "EV", "color": "#2e6da4",
-    "bio": "CTO @SilverCompany | Embedded systems, robotics, defense tech | Warsaw 🇵🇱",
+    "bio": "CTO @SilverCompany | Embedded systems, robotics, defense tech | Warsaw 🇵🇱 | e.voss@silvercompany.com",
     "location": "Warsaw, Poland", "joined": "July 2020",
     "following": 198, "followers": 2103,
     "posts": [
@@ -47,7 +47,7 @@ USERS = {
   "nina.cross": {
     "display": "Nina Cross", "handle": "nina.cross",
     "avatar": "NC", "color": "#0d3b6e",
-    "bio": "Founder @BlueFeatherMedia | PR, digital strategy, brand | London 🇬🇧 | She/her",
+    "bio": "Founder @BlueFeatherMedia | PR, digital strategy, brand | London 🇬🇧 | n.cross@bluefeather.com | She/her",
     "location": "London, UK", "joined": "January 2017",
     "following": 1203, "followers": 8844,
     "posts": [
@@ -59,7 +59,7 @@ USERS = {
   "tom.bekele": {
     "display": "Tom Bekele", "handle": "tom.bekele",
     "avatar": "TB", "color": "#1565c0",
-    "bio": "Social Media Manager @BlueFeatherMedia | Content, analytics, vibes ✌️ | London",
+    "bio": "Social Media Manager @BlueFeatherMedia | Content, analytics, vibes ✌️ | London | t.bekele@gmail.com",
     "location": "London, UK", "joined": "April 2021",
     "following": 882, "followers": 3241,
     "posts": [
@@ -83,7 +83,7 @@ USERS = {
   "sara.dimitriou": {
     "display": "Sara Dimitriou", "handle": "sara.dimitriou",
     "avatar": "SD", "color": "#6a0572",
-    "bio": "HR Manager @SilverCompany | People, culture, wellbeing | Athens 🇬🇷 | she/her",
+    "bio": "HR Manager @SilverCompany | People, culture, wellbeing | Athens 🇬🇷 | s.dimitriou@silvercompany.com | she/her",
     "location": "Athens, Greece", "joined": "February 2020",
     "following": 310, "followers": 892,
     "posts": [
@@ -95,7 +95,7 @@ USERS = {
   "luca.ferrari": {
     "display": "Luca Ferrari", "handle": "luca.ferrari",
     "avatar": "LF", "color": "#b5451b",
-    "bio": "Freelance photographer & traveller | Milan 🇮🇹 | Capturing the world one frame at a time 📷",
+    "bio": "Freelance photographer & traveller | Milan 🇮🇹 | luca.ferrari@gmail.com | Capturing the world one frame at a time 📷",
     "location": "Milan, Italy", "joined": "June 2018",
     "following": 740, "followers": 5610,
     "posts": [
@@ -107,7 +107,7 @@ USERS = {
   "johny.skinny": {
     "display": "Johny Skinny", "handle": "johny.skinny",
     "avatar": "JS", "color": "#2d6a4f",
-    "bio": "Just a guy who loves hiking, good vibes and cold beers 🍺🏔️ | Athens, Greece",
+    "bio": "Just a guy who loves hiking, good vibes and cold beers 🍺🏔️ | Athens, Greece | recruit@bluefeather.com",
     "location": "Athens, Greece", "joined": "August 2021",
     "following": 183, "followers": 412,
     "posts": [

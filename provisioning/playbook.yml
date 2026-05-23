@@ -55,6 +55,7 @@
           - libimage-exiftool-perl
           - ffmpeg
           - imagemagick
+          - dirb
         state: present
         update_cache: 'yes'
 
@@ -139,6 +140,13 @@
               "url": "http://postit.com/profile/{}",
               "urlMain": "http://postit.com",
               "username_claimed": "johny.skinny",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "MyBlogSpot": {
+              "errorType": "status_code",
+              "url": "http://myblogspot.com/author/{}",
+              "urlMain": "http://myblogspot.com",
+              "username_claimed": "nikos.andreou",
               "username_unclaimed": "xnobodyhasthisname999x"
             }
           }
@@ -345,6 +353,14 @@
         group: www-data
         mode: '0644'
 
+    - name: Deploy bluefeather hidden staff directory page
+      ansible.builtin.copy:
+        src: files/bluefeather/staff.html
+        dest: /var/www/bluefeather/staff.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
     - name: Deploy bluefeather Apache vhost
       ansible.builtin.copy:
         dest: /etc/apache2/sites-available/bluefeather.conf
@@ -530,6 +546,84 @@
         cmd: a2ensite famebook.conf
         creates: /etc/apache2/sites-enabled/famebook.conf
  
+    # ─── MyBlogSpot — Flask travel blog ────────────────────────
+    - name: Create MyBlogSpot app directory
+      ansible.builtin.file:
+        path: /opt/myblogspot
+        state: directory
+        mode: '0755'
+
+    - name: Deploy MyBlogSpot Flask application
+      ansible.builtin.copy:
+        src: files/myblogspot/app.py
+        dest: /opt/myblogspot/app.py
+        mode: '0644'
+
+    - name: Create MyBlogSpot static directory
+      ansible.builtin.file:
+        path: /opt/myblogspot/static
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy manifest.pdf to MyBlogSpot static (hidden)
+      ansible.builtin.copy:
+        src: files/myblogspot/static/manifest.pdf
+        dest: /opt/myblogspot/static/manifest.pdf
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Create MyBlogSpot systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/myblogspot.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=MyBlogSpot Travel Blog (Flask)
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/myblogspot/app.py
+          WorkingDirectory=/opt/myblogspot
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable and start MyBlogSpot service
+      ansible.builtin.systemd:
+        name: myblogspot
+        daemon_reload: true
+        enabled: true
+        state: started
+
+    - name: Deploy MyBlogSpot Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/myblogspot.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.myblogspot.com
+              ServerAlias myblogspot.com
+
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5002/
+              ProxyPassReverse / http://127.0.0.1:5002/
+
+              ErrorLog  ${APACHE_LOG_DIR}/myblogspot_error.log
+              CustomLog ${APACHE_LOG_DIR}/myblogspot_access.log combined
+          </VirtualHost>
+
+    - name: Enable myblogspot vhost
+      ansible.builtin.command:
+        cmd: a2ensite myblogspot.conf
+        creates: /etc/apache2/sites-enabled/myblogspot.conf
+
     # ─── Disable default Apache vhost ───────────────────────────
     - name: Disable default Apache vhost
       ansible.builtin.command:
