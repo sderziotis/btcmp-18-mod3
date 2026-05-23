@@ -695,6 +695,8 @@
           192.168.10.10  www.bluefeather.com bluefeather.com
           192.168.10.10  www.famebook.com famebook.com
           192.168.10.10  www.postit.com postit.com
+          192.168.10.10  www.postit.com postit.com
+          192.168.10.10  www.myblogspot.com myblogspot.com
 
     # ─── Services ────────────────────────────────────────────────
     - name: Enable OpenSSH server
