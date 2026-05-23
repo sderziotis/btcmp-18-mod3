@@ -361,6 +361,46 @@
         group: www-data
         mode: '0644'
 
+    - name: Deploy bluefeather contact page
+      ansible.builtin.copy:
+        src: files/bluefeather/contact.html
+        dest: /var/www/bluefeather/contact.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather services page
+      ansible.builtin.copy:
+        src: files/bluefeather/services.html
+        dest: /var/www/bluefeather/services.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather blog page
+      ansible.builtin.copy:
+        src: files/bluefeather/blog.html
+        dest: /var/www/bluefeather/blog.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Create bluefeather wp-admin directory
+      ansible.builtin.file:
+        path: /var/www/bluefeather/wp-admin
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy bluefeather login page
+      ansible.builtin.copy:
+        src: files/bluefeather/login.html
+        dest: /var/www/bluefeather/wp-admin/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
     - name: Deploy bluefeather Apache vhost
       ansible.builtin.copy:
         dest: /etc/apache2/sites-available/bluefeather.conf
