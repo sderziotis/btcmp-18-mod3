@@ -270,10 +270,5 @@ def category(cat):
 def manifest():
     return send_from_directory(STATIC_DIR, "manifest.pdf")
 
-@app.route("/robots.txt")
-def robots():
-    content = "User-agent: *\nDisallow: /static/manifest.pdf\n"
-    return app.response_class(content, mimetype="text/plain")
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5002)

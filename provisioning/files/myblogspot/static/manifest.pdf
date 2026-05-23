@@ -1,87 +1,117 @@
 %PDF-1.3
-%“Œ‹ž ReportLab Generated PDF document (opensource)
+%âãÏÓ
 1 0 obj
 <<
-/F1 2 0 R /F2 3 0 R
+/Producer (ReportLab PDF Library \055 \050opensource\051)
+/Title (manifest)
+/Author ()
+/Subject ()
+/Keywords ()
+/Creator (MyBlogSpot)
+/CreationDate (D\07220260523125339\05300\04700\047)
+/ModDate (D\07220260523125339\05300\04700\047)
+/Trapped (\057False)
 >>
 endobj
 2 0 obj
 <<
-/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+/Type /Pages
+/Count 1
+/Kids [ 4 0 R ]
 >>
 endobj
 3 0 obj
 <<
-/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+/Type /Catalog
+/Pages 2 0 R
+/Metadata 9 0 R
 >>
 endobj
 4 0 obj
 <<
-/Contents 8 0 R /MediaBox [ 0 0 612 792 ] /Parent 7 0 R /Resources <<
-/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
->> /Rotate 0 /Trans <<
-
->> 
-  /Type /Page
+/Contents 5 0 R
+/MediaBox [ 0 0 612 792 ]
+/Resources <<
+/Font 6 0 R
+/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>>
+/Rotate 0
+/Trans <<
+>>
+/Type /Page
+/Parent 2 0 R
 >>
 endobj
 5 0 obj
 <<
-/PageMode /UseNone /Pages 7 0 R /Type /Catalog
+/Filter [ /ASCII85Decode /FlateDecode ]
+/Length 124
 >>
+stream
+GapQh0E=F,0U\H3T\pNYT^QKk?tc>IP,;W#U1^23ihPEM_?C]6;D9j,M&TU]=WkWlTgfk;(atbT!]B*iBEU?,GWIq_-oh,$Kt-u5BI\[G.>2Ac1am;D!+Qf^FT~>
+endstream
 endobj
 6 0 obj
 <<
-/Author () /CreationDate (D:20260523125339+00'00') /Creator (MyBlogSpot) /Keywords () /ModDate (D:20260523125339+00'00') /Producer (ReportLab PDF Library - \(opensource\)) 
-  /Subject () /Title (manifest) /Trapped /False
+/F1 7 0 R
+/F2 8 0 R
 >>
 endobj
 7 0 obj
 <<
-/Count 1 /Kids [ 4 0 R ] /Type /Pages
+/BaseFont /Helvetica
+/Encoding /WinAnsiEncoding
+/Name /F1
+/Subtype /Type1
+/Type /Font
 >>
 endobj
 8 0 obj
 <<
-/Filter [ /ASCII85Decode /FlateDecode ] /Length 124
+/BaseFont /Helvetica-Bold
+/Encoding /WinAnsiEncoding
+/Name /F2
+/Subtype /Type1
+/Type /Font
+>>
+endobj
+9 0 obj
+<<
+/Type /Metadata
+/Subtype /XML
+/Length 369
 >>
 stream
-GapQh0E=F,0U\H3T\pNYT^QKk?tc>IP,;W#U1^23ihPEM_?C]6;D9j,M&TU]=WkWlTgfk;(atbT!]B*iBEU?,GWIq_-oh,$Kt-u5BI\[G.>2Ac1am;D!+Qf^FT~>endstream
-endobj
-xref
-0 9
-0000000000 65535 f 
-0000000061 00000 n 
-0000000102 00000 n 
-0000000209 00000 n 
-0000000321 00000 n 
-0000000514 00000 n 
-0000000582 00000 n 
-0000000824 00000 n 
-0000000883 00000 n 
-trailer
-<<
-/ID 
-[<3d610232034fce02e278b8b00af2bebe><3d610232034fce02e278b8b00af2bebe>]
-% ReportLab generated PDF document -- digest (opensource)
-
-/Info 6 0 R
-/Root 5 0 R
-/Size 9
->>
-
-%<?xpacket begin='ï»¿' id='W5M0MpCehiHzreSzNTczkc9d'?>
+<?xpacket begin='ï»¿' id='W5M0MpCehiHzreSzNTczkc9d'?>
 <x:xmpmeta xmlns:x='adobe:ns:meta/'>
   <rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
     <rdf:Description rdf:about=''
-        xmlns:dc='http://purl.org/dc/elements/1.1/'
-        xmlns:customns='http://ns.myblogspot.com/custom/1.0/'>
-      <dc:title>manifest</dc:title>
-      <customns:HiddenField>HidDenAutHorIsNiKos</customns:HiddenField>
+      xmlns:hidden='http://ns.example.com/hidden/1.0/'>
+      <hidden:Flag>FLAG-NIKOS-ANDREOU</hidden:Flag>
     </rdf:Description>
   </rdf:RDF>
 </x:xmpmeta>
 <?xpacket end='w'?>
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000290 00000 n 
+0000000349 00000 n 
+0000000414 00000 n 
+0000000603 00000 n 
+0000000818 00000 n 
+0000000859 00000 n 
+0000000966 00000 n 
+0000001078 00000 n 
+trailer
+<<
+/Size 10
+/Root 3 0 R
+/Info 1 0 R
+>>
 startxref
-1097
+1528
 %%EOF
