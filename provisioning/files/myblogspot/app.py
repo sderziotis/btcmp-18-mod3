@@ -272,7 +272,7 @@ def manifest():
 
 @app.route("/robots.txt")
 def robots():
-    content = "User-agent: *\nDisallow: /static/manifest.pdf\n"
+    content = "User-agent: *\nDisallow: /static/manifest.jpg\n"
     return app.response_class(content, mimetype="text/plain")
 
 if __name__ == "__main__":
