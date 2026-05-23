@@ -22,7 +22,7 @@ All simulated web properties resolve to **lab1 (192.168.10.10)** via `/etc/hosts
 ### INV1 — Investigator Workstation
 **User:** `user` / `Password123` (sudo enabled)
 
-**Software:** Python3, pip, pipx, Node.js, npm, Git, build-essential, wget, curl, jq, unzip, zip, Firefox, Chromium, ExifTool, ffmpeg, ImageMagick, Tor Browser, SpiderFoot v3.5, Sherlock
+**Software:** Python3, pip, pipx, Node.js, npm, Git, build-essential, wget, curl, jq, unzip, zip, Firefox, Chromium, ExifTool, ffmpeg, ImageMagick, Tor Browser, SpiderFoot v3.5, Sherlock, dirb
 
 **Notes:**
 - Tor Browser is installed via `torbrowser-launcher` — user must run it once to complete download and setup.
@@ -44,7 +44,7 @@ All simulated web properties resolve to **lab1 (192.168.10.10)** via `/etc/hosts
 
 **Software:** Python3, pip, pipx, Node.js, npm, PHP 8.3, php-cli, php-fpm, Git, build-essential, Apache2, wget, curl, jq, unzip, zip, rsync, net-tools, dnsutils, openssl, OpenSSH Server, SQLite3, cron, Flask, Gunicorn
 
-**Services enabled at boot:** Apache2, OpenSSH, cron, Famebook (systemd, port 5000), PostIt (systemd, port 5001)
+**Services enabled at boot:** Apache2, OpenSSH, cron, Famebook (systemd, port 5000), PostIt (systemd, port 5001), MyBlogSpot (systemd, port 5002)
 
 ---
 
@@ -66,28 +66,18 @@ All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 - **Stack:** Apache2 virtual host, static HTML
 - **Persona:** Blue Feather Media Ltd — digital PR agency, London
 - **OSINT breadcrumbs:**
-  - Staff directory with emails (`n.cross@`, `a.romanov@`, `p.nair@`, `t.bekele@`)
+  - Homepage does **not** list staff — team section removed
+  - Hidden staff directory at `/staff.html` (not linked from the homepage) contains full employee table with names, emails, departments, and social media links
   - `robots.txt` exposes: `/wp-admin/`, `/client-reports/`, `/.git/`
   - Server headers leak: `X-Generator: Joomla! 4.3`
   - Blog post references Silver Company and "the Orlov incident" — cross-site link
   - Company number (England & Wales) in footer
 
+
 ### www.famebook.com — Social Media Platform #1
 - **Stack:** Flask app (systemd service on port 5000) + Apache2 reverse proxy
 - **Static files:** `/opt/famebook/static/` — served via Flask `send_from_directory`
 - **Personas & cross-links:**
-
-| Handle | Name | Affiliation | Key OSINT in posts |
-|--------|------|-------------|-------------------|
-| `marcus.hale` | Marcus Hale | CEO, Silver Company | Mentions Athens expansion, meeting with Nina Cross, uses Ansible |
-| `elena.voss` | Elena Voss | CTO, Silver Company | VPN policy change, FreeRTOS firmware, Warsaw team |
-| `dmitri.orlov` | Dmitri Orlov | Head of Ops, Silver Company | Athens warehouse, IT helpdesk complaint, email in bio |
-| `nina.cross` | Nina Cross | Founder, Blue Feather | References "Orlov data story", runs OSINT audits |
-| `tom.bekele` | Tom Bekele | Social Media Mgr, Blue Feather | Manages SilverCompany page, mentions API key |
-| `alexei.romanov` | Alexei Romanov | Head of Digital, Blue Feather | Email in bio, posts about exposed `.git` dirs and leaked API keys |
-| `sara.dimitriou` | Sara Dimitriou | HR Manager, Silver Company | Job listings, Athens team announcements |
-| `luca.ferrari` | Luca Ferrari | Freelance photographer | Travel posts, cross-reference with johny.skinny locations |
-| `johny.skinny` | Johny Skinny | — | Mountain trip post with photo (`johnyskinny_mountains.jpg`) |
 
 **Routes:**
 - `/` — main feed (all posts, chronological)
@@ -104,15 +94,6 @@ All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 - **Static files:** `/opt/postit/static/` — served via Flask `send_from_directory`
 - **Personas & cross-links:**
 
-| Handle | Name | Affiliation | Key OSINT in posts |
-|--------|------|-------------|-------------------|
-| `nina.cross` | Nina Cross | Founder, Blue Feather | PR strategy, OSINT audits |
-| `alexei.romanov` | Alexei Romanov | Head of Digital, Blue Feather | Email in bio, API key exposure posts |
-| `tom.bekele` | Tom Bekele | Social Media Mgr, Blue Feather | Content campaigns |
-| `marco.villa` | Marco Villa | Journalist | Infosec articles, references BlueFeather |
-| `petra.novak` | Petra Novak | Content strategist | PostIt strategy posts |
-| `johny.skinny` | Johny Skinny | — | Beach post with photo (`johnyskinny_beach.jpg`) |
-
 **Routes:**
 - `/` — main feed
 - `/people` — all profiles grid
@@ -122,16 +103,26 @@ All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 
 ---
 
+### www.myblogspot.com — Personal Travel Blog
+- **Stack:** Flask app (systemd service on port 5002) + Apache2 reverse proxy
+- **Persona:** Nikos Andreou's personal travel blog — Athens, Lisbon, Greek islands, travel tips
+- **Hidden file:** `/static/manifest.pdf` — not linked anywhere on the site; contains only "RADICAL CONTENT". 
+- **About page:** mentions Athens as home base and refers visitors to PostIt — no email listed
+
+**Routes:**
+- `/` — home / post list
+- `/post/<slug>` — individual post
+- `/about` — about page
+- `/category/<cat>` — filtered by category
+- `/static/manifest.pdf` — hidden PDF
+
+**To restart manually:** `sudo systemctl restart myblogspot`
+
+---
+
 ## Sherlock Custom Sites (`custom_sites.json`)
 
 Located at `/usr/local/lib/python3.12/dist-packages/sherlock_project/resources/custom_sites.json` on inv1.
-
-| Site | Profile URL pattern | Claimed username |
-|------|--------------------|--------------------|
-| Famebook | `http://famebook.com/profile/{}` | `dmitri.orlov` |
-| BlueFeather | `http://bluefeather.com/author/{}` | `johny.skinny` |
-| SilverCompany | `http://silvercompany.com/team/{}` | `johny.skinny` |
-| PostIt | `http://postit.com/profile/{}` | `johny.skinny` |
 
 ---
 
@@ -144,6 +135,7 @@ Located at `/usr/local/lib/python3.12/dist-packages/sherlock_project/resources/c
 192.168.10.10  www.bluefeather.com bluefeather.com
 192.168.10.10  www.famebook.com famebook.com
 192.168.10.10  www.postit.com postit.com
+192.168.10.10  www.myblogspot.com myblogspot.com
 ```
 
 ---
@@ -152,6 +144,6 @@ Located at `/usr/local/lib/python3.12/dist-packages/sherlock_project/resources/c
 - PHP defaults to **8.3** as provided by Ubuntu 24.04 repos.
 - Famebook Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5000.
 - PostIt Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5001.
-- Images are deployed as raw binary copies — EXIF/metadata is preserved intact.
+- MyBlogSpot Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5002.
 - SpiderFoot version pinned to **v3.5** (`/opt/spiderfoot`).
 - The `case01/` folder is placed on the inv1 Desktop at `/home/user/Desktop/case01/`.
