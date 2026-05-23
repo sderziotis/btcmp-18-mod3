@@ -608,10 +608,10 @@
         group: www-data
         mode: '0755'
 
-    - name: Deploy manifest.pdf to MyBlogSpot static (hidden)
+    - name: Deploy manifest.jpg to MyBlogSpot static (hidden)
       ansible.builtin.copy:
-        src: files/myblogspot/static/manifest.pdf
-        dest: /opt/myblogspot/static/manifest.pdf
+        src: files/myblogspot/static/manifest.jpg
+        dest: /opt/myblogspot/static/manifest.jpg
         owner: www-data
         group: www-data
         mode: '0644'
