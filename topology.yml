@@ -38,7 +38,7 @@ networks:
   - name: network-3
     cidr: 192.168.10.0/24
     accessible_by_user: true
-    hidden: true
+    hidden: false
 wan:
   name: network-1
   cidr: 10.10.10.0/24
