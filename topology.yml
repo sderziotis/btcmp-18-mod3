@@ -1,0 +1,64 @@
+# Main topology
+name: btcmp-18-main
+hosts:
+  - name: inv1
+    flavor: c2_r4_d40
+    base_box:
+      image: xubuntu-noble-x86_64
+      mgmt_user: ubuntu
+      mgmt_protocol: ssh
+    hidden: false
+  - name: lab1
+    flavor: c2_r4_d40
+    base_box:
+      image: xubuntu-noble-x86_64
+      mgmt_user: ubuntu
+      mgmt_protocol: ssh
+    hidden: true
+  - name: fs1
+    flavor: c2_r4_d40
+    base_box:
+      image: xubuntu-noble-x86_64
+      mgmt_user: ubuntu
+      mgmt_protocol: ssh
+    hidden: true
+routers:
+  - name: router-1
+    flavor: standard.small
+    base_box:
+      image: ubuntu-noble-x86_64
+      mgmt_user: ubuntu
+      mgmt_protocol: ssh
+    hidden: false
+networks:
+  - name: network-2
+    cidr: 192.168.0.0/24
+    accessible_by_user: true
+    hidden: false
+  - name: network-3
+    cidr: 192.168.10.0/24
+    accessible_by_user: true
+    hidden: true
+wan:
+  name: network-1
+  cidr: 10.10.10.0/24
+net_mappings:
+  - host: inv1
+    network: network-2
+    ip: 192.168.0.10
+  - host: lab1
+    network: network-3
+    ip: 192.168.10.10
+  - host: fs1
+    network: network-2
+    ip: 192.168.0.100
+router_mappings:
+  - router: router-1
+    network: network-2
+    ip: 192.168.0.1
+  - router: router-1
+    network: network-3
+    ip: 192.168.10.1
+groups: []
+
+
