@@ -39,6 +39,10 @@ networks:
     cidr: 192.168.10.0/24
     accessible_by_user: true
     hidden: true
+  - name: network-4
+    cidr: 192.168.20.0/24
+    accessible_by_user: true
+    hidden: true
 wan:
   name: network-1
   cidr: 10.10.10.0/24
@@ -50,8 +54,8 @@ net_mappings:
     network: network-3
     ip: 192.168.10.10
   - host: fs1
-    network: network-2
-    ip: 192.168.0.100
+    network: network-4
+    ip: 192.168.20.10
 router_mappings:
   - router: router-1
     network: network-2
@@ -59,6 +63,9 @@ router_mappings:
   - router: router-1
     network: network-3
     ip: 192.168.10.1
+  - router: router-1
+    network: network-4
+    ip: 192.168.20.1
 groups: []
 
 
