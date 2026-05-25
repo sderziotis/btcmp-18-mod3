@@ -750,40 +750,58 @@
         state: present
         update_cache: 'yes'
 
-  # ─── Deploy case01 files ─────────────────────────────────────
-    - name: Create case01 directory under Apache webroot
+  # ─── Deploy case01 files to isolated webroot ─────────────────
+    - name: Create isolated case01 webroot
       ansible.builtin.file:
-        path: /var/www/html/case01
+        path: /var/www/case01
         state: directory
         owner: www-data
         group: www-data
         mode: '0755'
 
-    - name: Copy case01 folder to file server webroot
+    - name: Copy case01 folder to isolated webroot
       ansible.builtin.copy:
         src: files/case01/
-        dest: /var/www/html/case01/
+        dest: /var/www/case01/
         owner: www-data
         group: www-data
         mode: '0644'
         directory_mode: '0755'
 
-  # ─── Enable directory listing for case01 ─────────────────────
-    - name: Deploy Apache config for case01 directory listing
+  # ─── Apache vhost: serve only /case01, deny root ─────────────
+    - name: Deploy fs1 Apache vhost
       ansible.builtin.copy:
-        dest: /etc/apache2/conf-available/case01.conf
+        dest: /etc/apache2/sites-available/fs1.conf
         mode: '0644'
         content: |
-          <Directory /var/www/html/case01>
-              Options +Indexes +FollowSymLinks
-              AllowOverride None
-              Require all granted
-          </Directory>
+          <VirtualHost *:80>
 
-    - name: Enable case01 Apache config
+              DocumentRoot /var/www/html
+              <Directory /var/www/html>
+                  Options -Indexes
+                  Require all denied
+              </Directory>
+
+              Alias /case01 /var/www/case01
+              <Directory /var/www/case01>
+                  Options +Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              ErrorLog  ${APACHE_LOG_DIR}/fs1_error.log
+              CustomLog ${APACHE_LOG_DIR}/fs1_access.log combined
+          </VirtualHost>
+
+    - name: Enable fs1 vhost
       ansible.builtin.command:
-        cmd: a2enconf case01.conf
-        creates: /etc/apache2/conf-enabled/case01.conf
+        cmd: a2ensite fs1.conf
+        creates: /etc/apache2/sites-enabled/fs1.conf
+
+    - name: Disable default Apache vhost on fs1
+      ansible.builtin.command:
+        cmd: a2dissite 000-default.conf
+        removes: /etc/apache2/sites-enabled/000-default.conf
 
   # ─── Enable and start Apache ─────────────────────────────────
     - name: Enable and start Apache2
