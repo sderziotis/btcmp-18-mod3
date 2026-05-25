@@ -21,7 +21,7 @@ hosts:
       image: xubuntu-noble-x86_64
       mgmt_user: ubuntu
       mgmt_protocol: ssh
-    hidden: true
+    hidden: false
 routers:
   - name: router-1
     flavor: standard.small
