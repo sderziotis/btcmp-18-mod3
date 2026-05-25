@@ -1,0 +1,800 @@
+# ─────────────────────────────────────────────
+#  MACHINE 1 - inv1
+# ─────────────────────────────────────────────
+- name: init machine inv1
+  hosts:
+    - inv1
+  become: true
+
+  tasks:
+
+  # ─── Disable unattended-upgrades─────────────────────────────
+
+    - name: Disable unattended-upgrades during provisioning
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      failed_when: false
+
+    - name: Kill leftover apt/dpkg processes
+      ansible.builtin.shell: |
+        pkill -9 apt || true
+        pkill -9 dpkg || true
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for apt lock to be released
+      ansible.builtin.shell: >
+        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
+        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
+          sleep 3
+        done
+      changed_when: false
+      failed_when: false
+
+
+
+    # apt packages
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+          - pipx
+          - nodejs
+          - npm
+          - git
+          - wget
+          - curl
+          - jq
+          - unzip
+          - zip
+          - build-essential
+          - firefox
+          - chromium
+          - libimage-exiftool-perl
+          - ffmpeg
+          - imagemagick
+          - dirb
+        state: present
+        update_cache: 'yes'
+
+    # ─── Tor Browser ────────────────────────────────────────────
+    #- name: Add Tor Project apt repository key
+    #  ansible.builtin.shell:
+    #    cmd: >
+    #      wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc |
+    #      gpg --dearmor -o /etc/apt/keyrings/tor.gpg
+    #    creates: /etc/apt/keyrings/tor.gpg
+
+    #- name: Add Tor Project apt repository
+    #  ansible.builtin.shell:
+    #    cmd: >
+    #      echo
+    #      "deb [signed-by=/etc/apt/keyrings/tor.gpg]
+    #      https://deb.torproject.org/torproject.org noble main" |
+    #      tee /etc/apt/sources.list.d/tor.list > /dev/null
+    #    creates: /etc/apt/sources.list.d/tor.list
+
+    #- name: Update apt after adding Tor repo
+    #  ansible.builtin.apt:
+    #    update_cache: 'yes'
+
+    #- name: Install Tor Browser launcher
+    #  ansible.builtin.apt:
+    #    name:
+    #      - tor
+    #      - torbrowser-launcher
+    #    state: present
+
+    # ─── SpiderFoot ─────────────────────────────────────────────
+    #- name: Clone SpiderFoot v3.5 from GitHub
+    #  ansible.builtin.git:
+    #    repo: https://github.com/smicallef/spiderfoot.git
+    #    dest: /opt/spiderfoot
+    #    version: v3.5
+
+    #- name: Install SpiderFoot dependencies
+    #  ansible.builtin.pip:
+    #    requirements: /opt/spiderfoot/requirements.txt
+    #    executable: pip3
+    #    extra_args: --break-system-packages --ignore-installed
+
+    # ─── Sherlock ───────────────────────────────────────────────
+    - name: Install Sherlock via pip
+      ansible.builtin.pip:
+        name: sherlock-project
+        executable: pip3
+        extra_args: --break-system-packages
+
+    # ─── Sherlock custom_sites.json ─────────────────────────────
+    - name: Deploy custom_sites.json for Sherlock
+      ansible.builtin.copy:
+        dest: /usr/local/lib/python3.12/dist-packages/sherlock_project/resources/custom_sites.json
+        mode: '0644'
+        content: |
+          {
+            "Famebook": {
+              "errorType": "status_code",
+              "url": "http://famebook.com/profile/{}",
+              "urlMain": "http://famebook.com",
+              "username_claimed": "dmitri.orlov",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "BlueFeather": {
+              "errorType": "status_code",
+              "url": "http://bluefeather.com/author/{}",
+              "urlMain": "http://bluefeather.com",
+              "username_claimed": "johny.skinny",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "SilverCompany": {
+              "errorType": "status_code",
+              "url": "http://silvercompany.com/team/{}",
+              "urlMain": "http://silvercompany.com",
+              "username_claimed": "johny.skinny",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "PostIt": {
+              "errorType": "status_code",
+              "url": "http://postit.com/profile/{}",
+              "urlMain": "http://postit.com",
+              "username_claimed": "johny.skinny",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            },
+            "MyBlogSpot": {
+              "errorType": "status_code",
+              "url": "http://myblogspot.com/author/{}",
+              "urlMain": "http://myblogspot.com",
+              "username_claimed": "nikos.andreou",
+              "username_unclaimed": "xnobodyhasthisname999x"
+            }
+          }
+
+    # ─── Bashrc alias for Sherlock ───────────────────────────────
+    - name: Add Sherlock alias to user .bashrc
+      ansible.builtin.blockinfile:
+        path: /home/user/.bashrc
+        marker: "# {mark} KYPO SHERLOCK ALIAS"
+        block: |
+          alias sherlock='sherlock --json /usr/local/lib/python3.12/dist-packages/sherlock_project/resources/custom_sites.json'
+        create: false
+ 
+    - name: Source .bashrc for user
+      ansible.builtin.shell: |
+        echo "source /home/user/.bashrc" >> /home/user/.bash_profile
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    # ─── /etc/hosts entries for simulated domains (inv1) ────────
+    - name: Add simulated domain entries to /etc/hosts on inv1
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} KYPO OSINT LAB DOMAINS"
+        block: |
+          192.168.10.10  www.silvercompany.com silvercompany.com
+          192.168.10.10  www.bluefeather.com bluefeather.com
+          192.168.10.10  www.famebook.com famebook.com
+          192.168.10.10  www.postit.com postit.com
+          192.168.10.10  www.myblogspot.com myblogspot.com
+
+  # ─── Role ─────────────────────────────────────────────────────
+  roles:
+    - role: user-access
+      user_access_username: user
+      user_access_password: 'Password123'
+      user_access_sudo: true
+
+
+# ─────────────────────────────────────────────
+#  MACHINE 2 - lab1
+# ─────────────────────────────────────────────
+- name: init machine lab1
+  hosts:
+    - lab1
+  become: true
+
+  tasks:
+    # ─── Disable unattended-upgrades─────────────────────────────
+
+    - name: Disable unattended-upgrades during provisioning
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      failed_when: false
+
+    - name: Kill leftover apt/dpkg processes
+      ansible.builtin.shell: |
+        pkill -9 apt || true
+        pkill -9 dpkg || true
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for apt lock to be released
+      ansible.builtin.shell: >
+        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
+        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
+          sleep 3
+        done
+      changed_when: false
+      failed_when: false
+
+
+    # ─── APT packages ───────────────────────────────────────────
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - python3
+          - python3-pip
+          - pipx
+          - nodejs
+          - npm
+          - git
+          - wget
+          - curl
+          - jq
+          - unzip
+          - zip
+          - rsync
+          - build-essential
+          - apache2
+          - php
+          - libapache2-mod-php
+          - php-fpm
+          - php-cli
+          - openssh-server
+          - cron
+          - sqlite3
+          - openssl
+          - net-tools
+          - dnsutils
+          - python3-flask
+          - python3-gunicorn
+        state: present
+        update_cache: 'yes'
+
+    # ─── Enable Apache modules FIRST (before any vhost is enabled) ─
+    - name: Enable Apache headers module
+      ansible.builtin.command:
+        cmd: a2enmod headers
+        creates: /etc/apache2/mods-enabled/headers.load
+
+    - name: Enable Apache proxy modules
+      ansible.builtin.command:
+        cmd: a2enmod proxy proxy_http
+        creates: /etc/apache2/mods-enabled/proxy.load
+
+    # ─── Apache vhost config: silvercompany.com ─────────────────
+    - name: Create silvercompany webroot
+      ansible.builtin.file:
+        path: /var/www/silvercompany
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy silvercompany index.html
+      ansible.builtin.copy:
+        src: files/silvercompany/index.html
+        dest: /var/www/silvercompany/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy silvercompany robots.txt
+      ansible.builtin.copy:
+        src: files/silvercompany/robots.txt
+        dest: /var/www/silvercompany/robots.txt
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy silvercompany Apache vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/silvercompany.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.silvercompany.com
+              ServerAlias silvercompany.com
+              DocumentRoot /var/www/silvercompany
+              DirectoryIndex index.html
+
+              <Directory /var/www/silvercompany>
+                  Options -Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Header always set X-Powered-By "PHP/8.3.1"
+              Header always set X-Generator "WordPress/6.4.2"
+
+              ErrorLog ${APACHE_LOG_DIR}/silvercompany_error.log
+              CustomLog ${APACHE_LOG_DIR}/silvercompany_access.log combined
+          </VirtualHost>
+
+    - name: Enable silvercompany vhost
+      ansible.builtin.command:
+        cmd: a2ensite silvercompany.conf
+        creates: /etc/apache2/sites-enabled/silvercompany.conf
+
+    # ─── Apache vhost config: bluefeather.com ───────────────────
+    - name: Create bluefeather webroot
+      ansible.builtin.file:
+        path: /var/www/bluefeather
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy bluefeather index.html
+      ansible.builtin.copy:
+        src: files/bluefeather/index.html
+        dest: /var/www/bluefeather/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather robots.txt
+      ansible.builtin.copy:
+        src: files/bluefeather/robots.txt
+        dest: /var/www/bluefeather/robots.txt
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather hidden staff directory page
+      ansible.builtin.copy:
+        src: files/bluefeather/staff.html
+        dest: /var/www/bluefeather/staff.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather contact page
+      ansible.builtin.copy:
+        src: files/bluefeather/contact.html
+        dest: /var/www/bluefeather/contact.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather services page
+      ansible.builtin.copy:
+        src: files/bluefeather/services.html
+        dest: /var/www/bluefeather/services.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather blog page
+      ansible.builtin.copy:
+        src: files/bluefeather/blog.html
+        dest: /var/www/bluefeather/blog.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Create bluefeather wp-admin directory
+      ansible.builtin.file:
+        path: /var/www/bluefeather/wp-admin
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy bluefeather login page
+      ansible.builtin.copy:
+        src: files/bluefeather/login.html
+        dest: /var/www/bluefeather/wp-admin/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy bluefeather Apache vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/bluefeather.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.bluefeather.com
+              ServerAlias bluefeather.com
+              DocumentRoot /var/www/bluefeather
+              DirectoryIndex index.html
+
+              <Directory /var/www/bluefeather>
+                  Options -Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Header always set X-Powered-By "PHP/8.3.1"
+              Header always set X-Generator "Joomla! 4.3"
+
+              ErrorLog ${APACHE_LOG_DIR}/bluefeather_error.log
+              CustomLog ${APACHE_LOG_DIR}/bluefeather_access.log combined
+          </VirtualHost>
+
+    - name: Enable bluefeather vhost
+      ansible.builtin.command:
+        cmd: a2ensite bluefeather.conf
+        creates: /etc/apache2/sites-enabled/bluefeather.conf
+
+    # ─── Famebook — Flask social media app ──────────────────────
+    - name: Create Famebook app directory
+      ansible.builtin.file:
+        path: /opt/famebook
+        state: directory
+        mode: '0755'
+ 
+    - name: Deploy Famebook Flask application
+      ansible.builtin.copy:
+        src: files/famebook/app.py
+        dest: /opt/famebook/app.py
+        mode: '0644'
+ 
+    - name: Create Famebook static directory
+      ansible.builtin.file:
+        path: /opt/famebook/static
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+ 
+    - name: Deploy mountain image to Famebook static (preserve metadata)
+      ansible.builtin.copy:
+        src: files/famebook/static/mountain.png
+        dest: /opt/famebook/static/johnyskinny_mountains.jpg
+        owner: www-data
+        group: www-data
+        mode: '0644'
+ 
+    # ─── PostIt — Flask social media app ────────────────────────
+    - name: Create PostIt app directory
+      ansible.builtin.file:
+        path: /opt/postit
+        state: directory
+        mode: '0755'
+ 
+    - name: Deploy PostIt Flask application
+      ansible.builtin.copy:
+        src: files/postit/app.py
+        dest: /opt/postit/app.py
+        mode: '0644'
+ 
+    - name: Create PostIt static directory
+      ansible.builtin.file:
+        path: /opt/postit/static
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+ 
+    - name: Deploy beach image to PostIt static (preserve metadata)
+      ansible.builtin.copy:
+        src: files/postit/static/beach.png
+        dest: /opt/postit/static/johnyskinny_beach.jpg
+        owner: www-data
+        group: www-data
+        mode: '0644'
+ 
+    - name: Create PostIt systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/postit.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=PostIt Social Media Simulation (Flask)
+          After=network.target
+ 
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/postit/app.py
+          WorkingDirectory=/opt/postit
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+ 
+          [Install]
+          WantedBy=multi-user.target
+ 
+    - name: Enable and start PostIt service
+      ansible.builtin.systemd:
+        name: postit
+        daemon_reload: true
+        enabled: true
+        state: started
+ 
+    - name: Deploy PostIt Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/postit.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.postit.com
+              ServerAlias postit.com
+ 
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5001/
+              ProxyPassReverse / http://127.0.0.1:5001/
+ 
+              ErrorLog  ${APACHE_LOG_DIR}/postit_error.log
+              CustomLog ${APACHE_LOG_DIR}/postit_access.log combined
+          </VirtualHost>
+ 
+    - name: Enable postit vhost
+      ansible.builtin.command:
+        cmd: a2ensite postit.conf
+        creates: /etc/apache2/sites-enabled/postit.conf
+ 
+    - name: Create Famebook systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/famebook.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Famebook Social Media Simulation (Flask)
+          After=network.target
+ 
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/famebook/app.py
+          WorkingDirectory=/opt/famebook
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+ 
+          [Install]
+          WantedBy=multi-user.target
+ 
+    - name: Enable and start Famebook service
+      ansible.builtin.systemd:
+        name: famebook
+        daemon_reload: true
+        enabled: true
+        state: started
+ 
+    - name: Deploy Famebook Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/famebook.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.famebook.com
+              ServerAlias famebook.com
+ 
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5000/
+              ProxyPassReverse / http://127.0.0.1:5000/
+ 
+              ErrorLog  ${APACHE_LOG_DIR}/famebook_error.log
+              CustomLog ${APACHE_LOG_DIR}/famebook_access.log combined
+          </VirtualHost>
+ 
+    - name: Enable famebook vhost
+      ansible.builtin.command:
+        cmd: a2ensite famebook.conf
+        creates: /etc/apache2/sites-enabled/famebook.conf
+ 
+    # ─── MyBlogSpot — Flask travel blog ────────────────────────
+    - name: Create MyBlogSpot app directory
+      ansible.builtin.file:
+        path: /opt/myblogspot
+        state: directory
+        mode: '0755'
+
+    - name: Deploy MyBlogSpot Flask application
+      ansible.builtin.copy:
+        src: files/myblogspot/app.py
+        dest: /opt/myblogspot/app.py
+        mode: '0644'
+
+    - name: Create MyBlogSpot static directory
+      ansible.builtin.file:
+        path: /opt/myblogspot/static
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Deploy manifest.jpg to MyBlogSpot static (hidden)
+      ansible.builtin.copy:
+        src: files/myblogspot/static/manifest.jpg
+        dest: /opt/myblogspot/static/manifest.jpg
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Create MyBlogSpot systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/myblogspot.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=MyBlogSpot Travel Blog (Flask)
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/myblogspot/app.py
+          WorkingDirectory=/opt/myblogspot
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable and start MyBlogSpot service
+      ansible.builtin.systemd:
+        name: myblogspot
+        daemon_reload: true
+        enabled: true
+        state: started
+
+    - name: Deploy MyBlogSpot Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/myblogspot.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.myblogspot.com
+              ServerAlias myblogspot.com
+
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5002/
+              ProxyPassReverse / http://127.0.0.1:5002/
+
+              ErrorLog  ${APACHE_LOG_DIR}/myblogspot_error.log
+              CustomLog ${APACHE_LOG_DIR}/myblogspot_access.log combined
+          </VirtualHost>
+
+    - name: Enable myblogspot vhost
+      ansible.builtin.command:
+        cmd: a2ensite myblogspot.conf
+        creates: /etc/apache2/sites-enabled/myblogspot.conf
+
+    # ─── Disable default Apache vhost ───────────────────────────
+    - name: Disable default Apache vhost
+      ansible.builtin.command:
+        cmd: a2dissite 000-default.conf
+        removes: /etc/apache2/sites-enabled/000-default.conf
+
+    # ─── Test Apache config before reloading ────────────────────
+    - name: Test Apache configuration syntax
+      ansible.builtin.command:
+        cmd: apache2ctl configtest
+      register: apache_configtest
+      changed_when: false
+      failed_when: "'Syntax OK' not in apache_configtest.stderr"
+
+    # ─── Reload Apache to apply all vhosts ──────────────────────
+    - name: Reload Apache2
+      ansible.builtin.systemd:
+        name: apache2
+        state: reloaded
+
+
+    # ─── /etc/hosts entries on lab1 itself ──────────────────────
+    - name: Add simulated domain entries to /etc/hosts on lab1
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} KYPO OSINT LAB DOMAINS"
+        block: |
+          192.168.10.10  www.silvercompany.com silvercompany.com
+          192.168.10.10  www.bluefeather.com bluefeather.com
+          192.168.10.10  www.famebook.com famebook.com
+          192.168.10.10  www.postit.com postit.com
+          192.168.10.10  www.myblogspot.com myblogspot.com
+
+    # ─── Services ────────────────────────────────────────────────
+    - name: Enable OpenSSH server
+      ansible.builtin.systemd:
+        name: ssh
+        enabled: true
+        state: started
+
+    - name: Enable cron
+      ansible.builtin.systemd:
+        name: cron
+        enabled: true
+        state: started
+
+  # ─── Role ─────────────────────────────────────────────────────
+  roles:
+    - role: user-access
+      user_access_username: user
+      user_access_password: 'btcmp18@admin'
+      user_access_sudo: true
+
+
+# ─────────────────────────────────────────────
+#  MACHINE 3 - fs1 (File Server — hidden)
+# ─────────────────────────────────────────────
+- name: init machine fs1
+  hosts:
+    - fs1
+  become: true
+
+  tasks:
+
+  # ─── Disable unattended-upgrades ────────────────────────────
+    - name: Disable unattended-upgrades during provisioning
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+        state: stopped
+      failed_when: false
+
+    - name: Kill leftover apt/dpkg processes
+      ansible.builtin.shell: |
+        pkill -9 apt || true
+        pkill -9 dpkg || true
+      changed_when: false
+      failed_when: false
+
+    - name: Wait for apt lock to be released
+      ansible.builtin.shell: >
+        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
+        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
+          sleep 3
+        done
+      changed_when: false
+      failed_when: false
+
+  # ─── APT packages ───────────────────────────────────────────
+    - name: Install Apache2
+      ansible.builtin.apt:
+        name:
+          - apache2
+        state: present
+        update_cache: 'yes'
+
+  # ─── Deploy case01 files ─────────────────────────────────────
+    - name: Create case01 directory under Apache webroot
+      ansible.builtin.file:
+        path: /var/www/html/case01
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy case01 folder to file server webroot
+      ansible.builtin.copy:
+        src: files/case01/
+        dest: /var/www/html/case01/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        directory_mode: '0755'
+
+  # ─── Enable directory listing for case01 ─────────────────────
+    - name: Deploy Apache config for case01 directory listing
+      ansible.builtin.copy:
+        dest: /etc/apache2/conf-available/case01.conf
+        mode: '0644'
+        content: |
+          <Directory /var/www/html/case01>
+              Options +Indexes +FollowSymLinks
+              AllowOverride None
+              Require all granted
+          </Directory>
+
+    - name: Enable case01 Apache config
+      ansible.builtin.command:
+        cmd: a2enconf case01.conf
+        creates: /etc/apache2/conf-enabled/case01.conf
+
+  # ─── Enable and start Apache ─────────────────────────────────
+    - name: Enable and start Apache2
+      ansible.builtin.systemd:
+        name: apache2
+        enabled: true
+        state: restarted
+
+  # ─── Role ─────────────────────────────────────────────────────
+  roles:
+    - role: user-access
+      user_access_username: user
+      user_access_password: 'btcmp18@admin'
+      user_access_sudo: true
