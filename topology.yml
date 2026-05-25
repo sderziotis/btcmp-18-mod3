@@ -21,7 +21,7 @@ hosts:
       image: xubuntu-noble-x86_64
       mgmt_user: ubuntu
       mgmt_protocol: ssh
-    hidden: false
+    hidden: true
 routers:
   - name: router-1
     flavor: standard.small
@@ -38,7 +38,7 @@ networks:
   - name: network-3
     cidr: 192.168.10.0/24
     accessible_by_user: true
-    hidden: false
+    hidden: true
 wan:
   name: network-1
   cidr: 10.10.10.0/24
