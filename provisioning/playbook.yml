@@ -768,7 +768,23 @@
         group: www-data
         mode: '0644'
         directory_mode: '0755'
-
+  # __ Achilleas edit start __ #
+  - name: Create Module6 webroot
+      ansible.builtin.file:
+        path: /var/www/module6/
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+  - name: Copy Module6 folder to isolated webroot
+      ansible.builtin.copy:
+        src: files/Module6/
+        dest: /var/www/module6/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        directory_mode: '0755'
+  # __ Achilleas edit finish __ #
   # ─── Apache vhost: serve only /case01, deny root ─────────────
     - name: Deploy fs1 Apache vhost
       ansible.builtin.copy:
