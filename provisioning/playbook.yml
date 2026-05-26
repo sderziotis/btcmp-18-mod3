@@ -807,6 +807,13 @@
                   Require all granted
               </Directory>
 
+              Alias /module6 /var/www/module6
+              <Directory /var/www/module6>
+                  Options +Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+              
               ErrorLog  ${APACHE_LOG_DIR}/fs1_error.log
               CustomLog ${APACHE_LOG_DIR}/fs1_access.log combined
           </VirtualHost>
