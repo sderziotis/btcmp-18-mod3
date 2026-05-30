@@ -180,6 +180,16 @@
           192.168.10.10  www.myblogspot.com myblogspot.com
           192.168.10.20  www.fileserver.com fileserver.com
 
+  # ─── MOD2: /etc/hosts entries for mod2 domains (inv1) ───────────
+    - name: Add mod2 domain entries to /etc/hosts on inv1
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} KYPO OSINT MOD2 DOMAINS"
+        block: |
+          192.168.10.10  www.northgate-uni.edu northgate-uni.edu
+          192.168.10.10  www.searchly.com searchly.com
+          192.168.10.10  www.archivly.com archivly.com
+
   # ─── Role ─────────────────────────────────────────────────────
   roles:
     - role: user-access
@@ -656,6 +666,328 @@
         cmd: a2ensite myblogspot.conf
         creates: /etc/apache2/sites-enabled/myblogspot.conf
 
+   # ─── MOD2: Northgate University website ─────────────────────
+    - name: Create northgate webroot and subdirectories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+      loop:
+        - /var/www/northgate
+        - /var/www/northgate/staff
+        - /var/www/northgate/uploads
+        - /var/www/northgate/internal
+
+    - name: Deploy northgate index.html
+      ansible.builtin.copy:
+        src: files/northgate/index.html
+        dest: /var/www/northgate/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate robots.txt
+      ansible.builtin.copy:
+        src: files/northgate/robots.txt
+        dest: /var/www/northgate/robots.txt
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate sitemap.xml
+      ansible.builtin.copy:
+        src: files/northgate/sitemap.xml
+        dest: /var/www/northgate/sitemap.xml
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate staff.html
+      ansible.builtin.copy:
+        src: files/northgate/staff.html
+        dest: /var/www/northgate/staff.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate tehrani staff profile
+      ansible.builtin.copy:
+        src: files/northgate/tehrani.html
+        dest: /var/www/northgate/staff/tehrani.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate whitmore staff profile
+      ansible.builtin.copy:
+        dest: /var/www/northgate/staff/whitmore.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        content: |
+          <!DOCTYPE html><html><head><meta charset="UTF-8">
+          <title>Prof. Alan Whitmore — Northgate CS</title>
+          <meta name="generator" content="Django/4.2">
+          <style>body{font-family:Georgia,serif;padding:30px;max-width:700px;margin:0 auto}</style>
+          </head><body>
+          <h1>Prof. Alan Whitmore</h1>
+          <p><strong>Head of Department — Distributed Systems &amp; Cloud Computing</strong></p>
+          <p>Email: <a href="mailto:a.whitmore@northgate-uni.edu">a.whitmore@northgate-uni.edu</a></p>
+          <p>Office: Turing Building, Room 204</p>
+          <p><a href="/staff.html">← Back to staff directory</a></p>
+          </body></html>
+
+    - name: Deploy northgate novak staff profile
+      ansible.builtin.copy:
+        dest: /var/www/northgate/staff/novak.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        content: |
+          <!DOCTYPE html><html><head><meta charset="UTF-8">
+          <title>Dr. Petra Novak — Northgate CS</title>
+          <meta name="generator" content="Django/4.2">
+          <style>body{font-family:Georgia,serif;padding:30px;max-width:700px;margin:0 auto}</style>
+          </head><body>
+          <h1>Dr. Petra Novak</h1>
+          <p><strong>Senior Lecturer — Cybersecurity &amp; Machine Learning</strong></p>
+          <p>Email: <a href="mailto:p.novak@northgate-uni.edu">p.novak@northgate-uni.edu</a></p>
+          <p>Office: Turing Building, Room 118</p>
+          <p><a href="/staff.html">← Back to staff directory</a></p>
+          </body></html>
+
+    - name: Deploy northgate budget PDF
+      ansible.builtin.copy:
+        src: files/northgate/uploads/budget_2024.pdf
+        dest: /var/www/northgate/uploads/budget_2024.pdf
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate staff roster backup
+      ansible.builtin.copy:
+        src: files/northgate/uploads/staff_roster.docx.bak
+        dest: /var/www/northgate/uploads/staff_roster.docx.bak
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate requirements.txt
+      ansible.builtin.copy:
+        src: files/northgate/uploads/requirements.txt
+        dest: /var/www/northgate/uploads/requirements.txt
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate internal meeting notes
+      ansible.builtin.copy:
+        src: files/northgate/internal/meeting_notes_jan2025.txt
+        dest: /var/www/northgate/internal/meeting_notes_jan2025.txt
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Deploy northgate placeholder pages
+      ansible.builtin.copy:
+        dest: "{{ item.dest }}"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        content: "{{ item.content }}"
+      loop:
+        - dest: /var/www/northgate/courses.html
+          content: |
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Courses — Northgate CS</title>
+            <meta name="generator" content="Django/4.2">
+            <style>body{font-family:Georgia,serif;padding:30px;max-width:700px;margin:0 auto;background:#f4f4f0}</style>
+            </head><body><h1 style="color:#1a3a5c">Courses</h1>
+            <ul><li>CS1010 — Introduction to Programming</li><li>CS3040 — Software Architecture (Dr. Tehrani)</li>
+            <li>CS3055 — Network Security (Dr. Novak)</li><li>CS4080 — Distributed Systems (Prof. Whitmore)</li></ul>
+            <p><a href="/">← Home</a></p></body></html>
+        - dest: /var/www/northgate/research.html
+          content: |
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Research — Northgate CS</title>
+            <meta name="generator" content="Django/4.2">
+            <style>body{font-family:Georgia,serif;padding:30px;max-width:700px;margin:0 auto;background:#f4f4f0}</style>
+            </head><body><h1 style="color:#1a3a5c">Research Groups</h1>
+            <p>CyberSec Lab (Dr. Novak) | Distributed Systems (Prof. Whitmore) | Software Quality (Dr. Tehrani)</p>
+            <p>Infrastructure: Kubernetes, GitLab CI, Ansible, AWS.</p>
+            <p><a href="/">← Home</a></p></body></html>
+        - dest: /var/www/northgate/news.html
+          content: |
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><title>News — Northgate CS</title>
+            <meta name="generator" content="Django/4.2">
+            <style>body{font-family:Georgia,serif;padding:30px;max-width:700px;margin:0 auto;background:#f4f4f0}</style>
+            </head><body><h1 style="color:#1a3a5c">News</h1>
+            <p><strong>14 May 2025</strong> — Dr. Novak wins EPSRC grant (£480,000).</p>
+            <p><strong>2 April 2025</strong> — Kubernetes cluster upgrade completed.</p>
+            <p><a href="/">← Home</a></p></body></html>
+        - dest: /var/www/northgate/contact.html
+          content: |
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><title>Contact — Northgate CS</title>
+            <meta name="generator" content="Django/4.2">
+            <style>body{font-family:Georgia,serif;padding:30px;max-width:700px;margin:0 auto;background:#f4f4f0}</style>
+            </head><body><h1 style="color:#1a3a5c">Contact</h1>
+            <p>Northgate University, Turing Building, Manchester M1 7NG</p>
+            <p>Webmaster: <a href="mailto:o.fitzgerald@northgate-uni.edu">o.fitzgerald@northgate-uni.edu</a></p>
+            <p><a href="/">← Home</a></p></body></html>
+
+    - name: Deploy northgate Apache vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/northgate.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.northgate-uni.edu
+              ServerAlias northgate-uni.edu
+              DocumentRoot /var/www/northgate
+              DirectoryIndex index.html
+
+              <Directory /var/www/northgate>
+                  Options -Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Header always set X-Powered-By "Django/4.2"
+              Header always set X-Backend-Server "gunicorn/21.2.0"
+
+              ErrorLog  ${APACHE_LOG_DIR}/northgate_error.log
+              CustomLog ${APACHE_LOG_DIR}/northgate_access.log combined
+          </VirtualHost>
+
+    - name: Enable northgate vhost
+      ansible.builtin.command:
+        cmd: a2ensite northgate.conf
+        creates: /etc/apache2/sites-enabled/northgate.conf
+
+    # ─── MOD2: Searchly — Simulated Search Engine (port 5010) ───
+    - name: Create Searchly app directory
+      ansible.builtin.file:
+        path: /opt/searchly
+        state: directory
+        mode: '0755'
+
+    - name: Deploy Searchly Flask application
+      ansible.builtin.copy:
+        src: files/searchly/app.py
+        dest: /opt/searchly/app.py
+        mode: '0644'
+
+    - name: Create Searchly systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/searchly.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Searchly Simulated Search Engine (Flask)
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/searchly/app.py
+          WorkingDirectory=/opt/searchly
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable and start Searchly service
+      ansible.builtin.systemd:
+        name: searchly
+        daemon_reload: true
+        enabled: true
+        state: started
+
+    - name: Deploy Searchly Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/searchly.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.searchly.com
+              ServerAlias searchly.com
+
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5010/
+              ProxyPassReverse / http://127.0.0.1:5010/
+
+              ErrorLog  ${APACHE_LOG_DIR}/searchly_error.log
+              CustomLog ${APACHE_LOG_DIR}/searchly_access.log combined
+          </VirtualHost>
+
+    - name: Enable searchly vhost
+      ansible.builtin.command:
+        cmd: a2ensite searchly.conf
+        creates: /etc/apache2/sites-enabled/searchly.conf
+
+    # ─── MOD2: Archivly — Simulated Web Archive (port 5011) ─────
+    - name: Create Archivly app directory
+      ansible.builtin.file:
+        path: /opt/archivly
+        state: directory
+        mode: '0755'
+
+    - name: Deploy Archivly Flask application
+      ansible.builtin.copy:
+        src: files/archivly/app.py
+        dest: /opt/archivly/app.py
+        mode: '0644'
+
+    - name: Create Archivly systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/archivly.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=Archivly Simulated Web Archive (Flask)
+          After=network.target
+
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/archivly/app.py
+          WorkingDirectory=/opt/archivly
+          Restart=always
+          User=www-data
+          Group=www-data
+          Environment=FLASK_ENV=production
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable and start Archivly service
+      ansible.builtin.systemd:
+        name: archivly
+        daemon_reload: true
+        enabled: true
+        state: started
+
+    - name: Deploy Archivly Apache reverse-proxy vhost
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/archivly.conf
+        mode: '0644'
+        content: |
+          <VirtualHost *:80>
+              ServerName www.archivly.com
+              ServerAlias archivly.com
+
+              ProxyPreserveHost On
+              ProxyPass        / http://127.0.0.1:5011/
+              ProxyPassReverse / http://127.0.0.1:5011/
+
+              ErrorLog  ${APACHE_LOG_DIR}/archivly_error.log
+              CustomLog ${APACHE_LOG_DIR}/archivly_access.log combined
+          </VirtualHost>
+
+    - name: Enable archivly vhost
+      ansible.builtin.command:
+        cmd: a2ensite archivly.conf
+        creates: /etc/apache2/sites-enabled/archivly.conf
+
     # ─── Disable default Apache vhost ───────────────────────────
     - name: Disable default Apache vhost
       ansible.builtin.command:
@@ -688,6 +1020,16 @@
           192.168.10.10  www.famebook.com famebook.com
           192.168.10.10  www.postit.com postit.com
           192.168.10.10  www.myblogspot.com myblogspot.com
+
+    # ─── MOD2: /etc/hosts entries for mod2 domains (lab1) ───────
+    - name: Add mod2 domain entries to /etc/hosts on lab1
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} KYPO OSINT MOD2 DOMAINS"
+        block: |
+          192.168.10.10  www.northgate-uni.edu northgate-uni.edu
+          192.168.10.10  www.searchly.com searchly.com
+          192.168.10.10  www.archivly.com archivly.com
 
     # ─── Services ────────────────────────────────────────────────
     - name: Enable OpenSSH server
@@ -786,6 +1128,24 @@
         mode: '0644'
         directory_mode: '0755'
     # __ Achilleas edit finish __ #
+
+        # ─── MOD2: case22 folder → fs1 webroot ──────────────────────
+    - name: Create case22 webroot on fs1
+      ansible.builtin.file:
+        path: /var/www/case22
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy case22 folder to fs1 webroot
+      ansible.builtin.copy:
+        src: files/case22/
+        dest: /var/www/case22/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        directory_mode: '0755'
   # ─── Apache vhost: serve only /case01, deny root ─────────────
     - name: Deploy fs1 Apache vhost
       ansible.builtin.copy:
@@ -809,6 +1169,13 @@
 
               Alias /module6 /var/www/module6
               <Directory /var/www/module6>
+                  Options +Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Alias /case22 /var/www/case22
+              <Directory /var/www/case22>
                   Options +Indexes +FollowSymLinks
                   AllowOverride None
                   Require all granted

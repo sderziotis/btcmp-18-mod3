@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://www.northgate-uni.edu/</loc><lastmod>2025-05-01</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/courses.html</loc><lastmod>2025-04-10</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/research.html</loc><lastmod>2025-04-22</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/staff.html</loc><lastmod>2025-03-15</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/news.html</loc><lastmod>2025-05-14</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/contact.html</loc><lastmod>2025-01-08</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/staff/whitmore.html</loc></url>
+  <url><loc>http://www.northgate-uni.edu/staff/novak.html</loc></url>
+  <url><loc>http://www.northgate-uni.edu/staff/tehrani.html</loc></url>
+  <!-- Administrative / uploads — should have been removed from sitemap -->
+  <url><loc>http://www.northgate-uni.edu/uploads/</loc><lastmod>2025-02-28</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/uploads/budget_2024.pdf</loc><lastmod>2025-02-28</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/uploads/staff_roster.docx.bak</loc><lastmod>2025-01-19</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/uploads/requirements.txt</loc><lastmod>2024-11-05</lastmod></url>
+  <url><loc>http://www.northgate-uni.edu/internal/meeting_notes_jan2025.txt</loc><lastmod>2025-01-30</lastmod></url>
+</urlset>

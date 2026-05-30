@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /internal/
+Disallow: /staff-only/
+Disallow: /uploads/
+Disallow: /admin/
+Disallow: /db-backup/
+
+# Note to webmaster: these directories should not appear in search results.
+# Please ensure uploads/ is cleared of stale files before next semester.
+
+Sitemap: http://www.northgate-uni.edu/sitemap.xml

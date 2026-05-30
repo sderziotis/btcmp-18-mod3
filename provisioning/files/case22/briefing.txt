@@ -1,0 +1,97 @@
+════════════════════════════════════════════════════════════
+  NORTHGATE UNIVERSITY — OSINT INVESTIGATION BRIEFING
+  MODULE 2 — Search Engine Intelligence
+  Case Reference: CASE-02
+════════════════════════════════════════════════════════════
+
+BACKGROUND
+──────────
+A university IT audit has flagged potential data exposure on
+the public-facing website of the Department of Computer Science
+at Northgate University (www.northgate-uni.edu).
+
+You have been tasked with conducting a passive OSINT
+investigation using only search engine techniques — no
+active scanning, no direct exploitation.
+
+YOUR TOOLS (on this machine)
+──────────────────────────────
+  Browser:    Firefox / Chromium
+  Search:     http://www.searchly.com   (simulated search engine)
+  Archive:    http://www.archivly.com   (simulated web archive)
+  Terminal:   dirb, wget, curl, exiftool
+
+════════════════════════════════════════════════════════════
+TASKS
+════════════════════════════════════════════════════════════
+
+TASK 1 — Identify all staff members
+  Find the full list of staff (names, email addresses, roles)
+  associated with the Northgate CS department.
+
+TASK 2 — Discover exposed documents
+  Using search operators, find files that were accidentally
+  indexed by Searchly. Note the filenames and what they reveal.
+
+TASK 3 — Identify the technology stack
+  What web framework and database does the department use?
+  Find at least two independent sources confirming this.
+
+TASK 4 — Recover removed content from the archive
+  A section was removed from the department website after
+  March 2025. Use Archivly to find what was there.
+
+TASK 5 — Cross-site pivot
+  One staff member has a public social media presence.
+  Which platform do they use, and what is their handle?
+
+════════════════════════════════════════════════════════════
+HINTS (read only if stuck)
+════════════════════════════════════════════════════════════
+
+Hint A: robots.txt often lists directories the owner does NOT
+        want indexed — start there.
+
+Hint B: Try the operators:  filetype:pdf site:northgate-uni.edu
+        and  inurl:uploads  on Searchly.
+
+Hint C: sitemap.xml can reveal paths that are not linked from
+        any page on the site.
+
+Hint D: Check Archivly for a March 2025 snapshot of
+        www.northgate-uni.edu.
+
+Hint E: Look at individual staff profile pages — not just the
+        main staff directory.
+
+════════════════════════════════════════════════════════════
+ANSWER SHEET — record your findings here
+════════════════════════════════════════════════════════════
+
+T1 — Staff names & emails:
+  1.
+  2.
+  3.
+  4.
+  5.
+
+T2 — Exposed documents (filename + key finding):
+  1.
+  2.
+  3.
+
+T3 — Technology stack (framework + DB):
+  Framework:
+  Database:
+  Source 1:
+  Source 2:
+
+T4 — Removed content (what was there, when removed):
+
+
+T5 — Social media handle of staff member:
+  Name:
+  Platform:
+  Handle:
+
+════════════════════════════════════════════════════════════

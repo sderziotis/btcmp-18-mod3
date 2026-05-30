@@ -1,0 +1,35 @@
+NORTHGATE CS DEPT — INTERNAL MEETING NOTES
+January 2025 All-Staff Meeting
+Room: Turing 204 | Date: 30 January 2025
+Attendees: Whitmore, Novak, Tehrani, Crane, Fitzgerald
+
+AGENDA ITEMS:
+
+1. INFRASTRUCTURE UPDATE (Fitzgerald)
+   - Migration to new Kubernetes cluster completed Dec 2024.
+   - GitLab runners now hosted on-prem; external access via VPN only.
+   - Staff reminded: DO NOT store credentials in git repos.
+   - Upcoming: Django upgrade to 4.2 LTS → 5.0 planned for summer.
+   - Private PyPI mirror at pypi.internal.northgate-uni.edu — staff should update pip config.
+
+2. BUDGET REVIEW (Crane / Whitmore)
+   - Draft budget circulated (see uploads/budget_2024.pdf — RESTRICTED).
+   - AWS spend up 18% YoY; Fitzgerald to audit unused instances.
+
+3. RESEARCH UPDATES (Novak)
+   - EPSRC application submitted; result expected April 2025.
+   - CyberSec Lab expanding: new GPU cluster order pending.
+
+4. STAFFING (Whitmore)
+   - Dr. Tehrani confirmed as module lead for CS3040 (Software Arch).
+   - Two new PhD offers made; names withheld pending acceptance.
+
+5. ANY OTHER BUSINESS
+   - Reminder: staff personal social media profiles should not reference 
+     internal systems or unpublished research. (Raised after a PostIt post 
+     by r.tehrani mentioned the internal GitLab URL.)
+   - Website review overdue — Fitzgerald to audit sitemap and uploads folder.
+     ACTION: Remove stale files from /uploads/ before end of February.
+     STATUS: OVERDUE.
+
+Next meeting: 27 February 2025.

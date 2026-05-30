@@ -1,0 +1,20 @@
+# Northgate CS Dept Web Portal — Python dependencies
+# Generated: 2024-11-04
+# Environment: production (portal.northgate-uni.edu internal)
+# Maintainer: o.fitzgerald@northgate-uni.edu
+
+Django==4.2.7
+psycopg2-binary==2.9.9
+redis==5.0.1
+celery==5.3.4
+gunicorn==21.2.0
+python-decouple==3.8
+Pillow==10.1.0
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+whitenoise==6.6.0
+sentry-sdk==1.38.0
+
+# Internal packages (private PyPI mirror: pypi.internal.northgate-uni.edu)
+northgate-auth==2.1.0
+northgate-sso==1.4.2
