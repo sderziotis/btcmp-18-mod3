@@ -1,8 +1,8 @@
-# btcmp-18-mod3 — Lab Environment
+# btcmp-18 — Lab Environment
 
 ## Overview
 
-This lab environment uses **xubuntu-noble-x86_64** as the base image for both machines.
+This lab environment uses **xubuntu-noble-x86_64** as the base image for all machines.
 
 ---
 
@@ -12,8 +12,10 @@ This lab environment uses **xubuntu-noble-x86_64** as the base image for both ma
 |------|---------|------|----|
 | inv1 | network-2 | 192.168.0.0/24 | 192.168.0.10 |
 | lab1 | network-3 | 192.168.10.0/24 | 192.168.10.10 |
+| fs1  | network-3 | 192.168.10.0/24 | 192.168.10.20 |
 
 All simulated web properties resolve to **lab1 (192.168.10.10)** via `/etc/hosts` entries injected on both machines.
+Case files are served by **fs1 (192.168.10.20)** via Apache.
 
 ---
 
@@ -29,11 +31,8 @@ All simulated web properties resolve to **lab1 (192.168.10.10)** via `/etc/hosts
   ```
   alias sherlock='sherlock --json /usr/local/lib/python3.12/dist-packages/sherlock_project/resources/custom_sites.json'
   ```
-- A `case01/` folder is placed on the Desktop containing scenario files.
-
-**Customizations:**
 - Sherlock uses `custom_sites.json` and searches only the custom domains listed below.
-- `/etc/hosts` has been modified so all custom domains resolve to `192.168.10.10`.
+- `/etc/hosts` has been modified so all custom domains resolve to `192.168.10.10` and the file server resolves to `192.168.10.20`.
 
 ---
 
@@ -42,7 +41,23 @@ All simulated web properties resolve to **lab1 (192.168.10.10)** via `/etc/hosts
 
 **Software:** Python3, pip, pipx, Node.js, npm, PHP 8.3, php-cli, php-fpm, Git, build-essential, Apache2, wget, curl, jq, unzip, zip, rsync, net-tools, dnsutils, openssl, OpenSSH Server, SQLite3, cron, Flask, Gunicorn
 
-**Services enabled at boot:** Apache2, OpenSSH, cron, Famebook (systemd, port 5000), PostIt (systemd, port 5001), MyBlogSpot (systemd, port 5002)
+**Services enabled at boot:** Apache2, OpenSSH, cron, Famebook (systemd, port 5000), PostIt (systemd, port 5001), MyBlogSpot (systemd, port 5002), Searchly (systemd, port 5010), Archivly (systemd, port 5011)
+
+---
+
+### FS1 — File Server
+**User:** `user` / `btcmp18@admin` (sudo enabled)
+
+**Software:** Apache2
+
+**Services enabled at boot:** Apache2
+
+**Serves the following paths:**
+- `http://192.168.10.20/case01/` — scenario files for Case 01
+- `http://192.168.10.20/case22/` — scenario files for Case 22
+- `http://192.168.10.20/module6/` — scenario files for Module 6
+
+Root (`/`) is denied — only the aliased paths above are accessible.
 
 ---
 
@@ -50,32 +65,52 @@ All simulated web properties resolve to **lab1 (192.168.10.10)** via `/etc/hosts
 
 All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 
+### www.northgate-uni.edu — University CS Department
+- **Stack:** Apache2 virtual host, static HTML
+- **Persona:** Department of Computer Science, Northgate University — fictional institution, Manchester
+---
+
+### www.searchly.com — Simulated Search Engine
+- **Stack:** Flask app (systemd service on port 5010) + Apache2 reverse proxy
+- **Persona:** Generic web search engine — minimal Google-style UI
+- **Supports operators:** `site:`, `filetype:`, `inurl:`, `intitle:`, `cache:`
+
+**Routes:**
+- `/` — search homepage
+- `/search?q=<query>` — results page
+
+**To restart manually:** `sudo systemctl restart searchly`
+
+---
+
+### www.archivly.com — Simulated Web Archive
+- **Stack:** Flask app (systemd service on port 5011) + Apache2 reverse proxy
+- **Persona:** Dark-themed web archive — similar in concept to the Wayback Machine
+
+
+**Routes:**
+- `/` — homepage listing all archived domains
+- `/browse?domain=<domain>` — list snapshots for a domain
+- `/view/<domain>/<snapshot_id>` — view a specific snapshot
+
+**To restart manually:** `sudo systemctl restart archivly`
+
+---
+
 ### www.silvercompany.com — Corporate Site #1
 - **Stack:** Apache2 virtual host, static HTML
 - **Persona:** Silver Company GmbH — precision manufacturing, Frankfurt HQ
-- **OSINT breadcrumbs:**
-  - Staff names, emails, and job titles on the homepage (`m.hale@`, `e.voss@`, `d.orlov@`, `s.kimani@`)
-  - `robots.txt` exposes: `/portal/`, `/internal/`, `/backup/`, `/admin/`
-  - Server headers leak: `X-Powered-By: PHP/8.3.1`, `X-Generator: WordPress/6.4.2`
-  - Company registration number, VAT ID, and phone in footer
-  - Job listings reveal internal tech stack (Ansible, Kubernetes, GitLab CI, FreeRTOS, STM32)
+
+---
 
 ### www.bluefeather.com — Corporate Site #2
 - **Stack:** Apache2 virtual host, static HTML
 - **Persona:** Blue Feather Media Ltd — digital PR agency, London
-- **OSINT breadcrumbs:**
-  - Homepage does **not** list staff — team section removed
-  - Hidden staff directory at `/staff.html` (not linked from the homepage) contains full employee table with names, emails, departments, and social media links
-  - `robots.txt` exposes: `/wp-admin/`, `/client-reports/`, `/.git/`
-  - Server headers leak: `X-Generator: Joomla! 4.3`
-  - Blog post references Silver Company and "the Orlov incident" — cross-site link
-  - Company number (England & Wales) in footer
-
+---
 
 ### www.famebook.com — Social Media Platform #1
 - **Stack:** Flask app (systemd service on port 5000) + Apache2 reverse proxy
 - **Static files:** `/opt/famebook/static/` — served via Flask `send_from_directory`
-- **Personas & cross-links:**
 
 **Routes:**
 - `/` — main feed (all posts, chronological)
@@ -90,7 +125,6 @@ All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 - **Stack:** Flask app (systemd service on port 5001) + Apache2 reverse proxy
 - **Theme:** Purple/violet — visually distinct from Famebook
 - **Static files:** `/opt/postit/static/` — served via Flask `send_from_directory`
-- **Personas & cross-links:**
 
 **Routes:**
 - `/` — main feed
@@ -104,8 +138,7 @@ All domains resolve to `192.168.10.10` (lab1) via `/etc/hosts` on both machines.
 ### www.myblogspot.com — Personal Travel Blog
 - **Stack:** Flask app (systemd service on port 5002) + Apache2 reverse proxy
 - **Persona:** Nikos Andreou's personal travel blog — Athens, Lisbon, Greek islands, travel tips
-- **Hidden file:** `/static/manifest.pdf` — not linked anywhere on the site; contains only "RADICAL CONTENT". 
-- **About page:** mentions Athens as home base and refers visitors to PostIt — no email listed
+
 
 **Routes:**
 - `/` — home / post list
@@ -126,7 +159,7 @@ Located at `/usr/local/lib/python3.12/dist-packages/sherlock_project/resources/c
 
 ## DNS / Domain Resolution Strategy
 
-`/etc/hosts` entries are injected on **both** machines:
+`/etc/hosts` entries are injected on **both** inv1 and lab1:
 
 ```
 192.168.10.10  www.silvercompany.com silvercompany.com
@@ -134,6 +167,10 @@ Located at `/usr/local/lib/python3.12/dist-packages/sherlock_project/resources/c
 192.168.10.10  www.famebook.com famebook.com
 192.168.10.10  www.postit.com postit.com
 192.168.10.10  www.myblogspot.com myblogspot.com
+192.168.10.10  www.northgate-uni.edu northgate-uni.edu
+192.168.10.10  www.searchly.com searchly.com
+192.168.10.10  www.archivly.com archivly.com
+192.168.10.20  www.fileserver.com fileserver.com
 ```
 
 ---
@@ -143,5 +180,7 @@ Located at `/usr/local/lib/python3.12/dist-packages/sherlock_project/resources/c
 - Famebook Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5000.
 - PostIt Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5001.
 - MyBlogSpot Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5002.
-- SpiderFoot version pinned to **v3.5** (`/opt/spiderfoot`).
-- The `case01/` folder is placed on the inv1 Desktop at `/home/user/Desktop/case01/`.
+- Searchly Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5010.
+- Archivly Flask app runs as `www-data` via systemd; Apache proxies port 80 → 5011.
+- Northgate website is static HTML served by Apache; Django is faked via HTTP headers only — no Django runtime installed.
+- fs1 serves case files only; root (`/`) is access-denied. All content is under named aliases.

@@ -357,12 +357,17 @@ def search():
     # Handle cache: operator
     if ops["cache"]:
         domain = ops["cache"]
-        snap = CACHE.get(domain)
+        # Strip http:// or https:// if student typed full URL
+        domain = re.sub(r'^https?://', '', domain).rstrip('/')
+        # Also try with www. prefix if not present
+        snap = CACHE.get(domain) or CACHE.get('www.' + domain)
         if snap:
+            # Use the actual dict key as display domain
+            resolved = domain if CACHE.get(domain) else 'www.' + domain
             return render_template_string(
                 CACHE_TMPL,
                 query=raw,
-                domain=domain,
+                domain=resolved,
                 date=snap["snapshot_date"],
                 title=snap["title"],
                 body=snap["body"]
