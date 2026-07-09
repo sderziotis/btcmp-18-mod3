@@ -7,7 +7,7 @@
   become: true
 
 - name: Set up command logging
-  hosts: xubuntu-desktop
+  hosts: inv1
   become: yes
   roles:
     - role: sandbox-logging
