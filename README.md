@@ -1,5 +1,8 @@
 # btcmp-18 — Lab Environment
 
+applied to BTCMP-18-MOD3 , MOD2, MOD6
+
+
 ## Overview
 
 This lab environment uses **xubuntu-noble-x86_64** as the base image for all machines.
