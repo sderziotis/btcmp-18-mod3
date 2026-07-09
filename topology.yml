@@ -32,9 +32,6 @@ router_mappings:
   - router: inv1
     network: network-3
     ip: 192.168.10.1
-  - router: inv1
-    network: network-1
-    ip: 10.10.10.10
 groups: []
 
 
