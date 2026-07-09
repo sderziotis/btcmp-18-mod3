@@ -6,6 +6,13 @@
     - inv1
   become: true
 
+- name: Set up command logging
+  hosts: xubuntu-desktop
+  become: yes
+  roles:
+    - role: sandbox-logging
+      slf_destination_port: '{% if hostvars["man"] is defined -%} 514 {%- else -%} 515 {%- endif %}'
+
   tasks:
 
   # ─── Disable unattended-upgrades─────────────────────────────
