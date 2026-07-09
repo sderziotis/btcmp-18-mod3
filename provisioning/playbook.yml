@@ -1001,15 +1001,21 @@
         mode: '0644'
         directory_mode: '0755'
 
-    # ─── Fileserver vhost: serves case01/module6/case22 for       ─
-    # ─── direct IP access (192.168.10.10), matched by exact IP so ─
-    # ─── it doesn't compete with the name-based vhosts above.     ─
+    # ─── Fileserver vhost: serves case01/module6/case22. Uses     ─
+    # ─── the *:80 wildcard like every other vhost here (name-     ─
+    # ─── based routing). The "000-" filename prefix makes it load ─
+    # ─── first, so it becomes Apache's default for any request    ─
+    # ─── whose Host header doesn't match another ServerName       ─
+    # ─── (e.g. direct browsing by IP). Binding this to the exact  ─
+    # ─── IP instead would make Apache route ALL requests to that  ─
+    # ─── IP here regardless of Host header, breaking every other  ─
+    # ─── domain on the box — do not change this back to an IP.    ─
     - name: Deploy fileserver Apache vhost (case01/module6/case22)
       ansible.builtin.copy:
         dest: /etc/apache2/sites-available/000-fileserver.conf
         mode: '0644'
         content: |
-          <VirtualHost 192.168.10.10:80>
+          <VirtualHost *:80>
               ServerName www.fileserver.com
               ServerAlias fileserver.com
 
