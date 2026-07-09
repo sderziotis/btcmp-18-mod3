@@ -59,46 +59,6 @@
         state: present
         update_cache: 'yes'
 
-    # ─── Tor Browser ────────────────────────────────────────────
-    #- name: Add Tor Project apt repository key
-    #  ansible.builtin.shell:
-    #    cmd: >
-    #      wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc |
-    #      gpg --dearmor -o /etc/apt/keyrings/tor.gpg
-    #    creates: /etc/apt/keyrings/tor.gpg
-
-    #- name: Add Tor Project apt repository
-    #  ansible.builtin.shell:
-    #    cmd: >
-    #      echo
-    #      "deb [signed-by=/etc/apt/keyrings/tor.gpg]
-    #      https://deb.torproject.org/torproject.org noble main" |
-    #      tee /etc/apt/sources.list.d/tor.list > /dev/null
-    #    creates: /etc/apt/sources.list.d/tor.list
-
-    #- name: Update apt after adding Tor repo
-    #  ansible.builtin.apt:
-    #    update_cache: 'yes'
-
-    #- name: Install Tor Browser launcher
-    #  ansible.builtin.apt:
-    #    name:
-    #      - tor
-    #      - torbrowser-launcher
-    #    state: present
-
-    # ─── SpiderFoot ─────────────────────────────────────────────
-    #- name: Clone SpiderFoot v3.5 from GitHub
-    #  ansible.builtin.git:
-    #    repo: https://github.com/smicallef/spiderfoot.git
-    #    dest: /opt/spiderfoot
-    #    version: v3.5
-
-    #- name: Install SpiderFoot dependencies
-    #  ansible.builtin.pip:
-    #    requirements: /opt/spiderfoot/requirements.txt
-    #    executable: pip3
-    #    extra_args: --break-system-packages --ignore-installed
 
     # ─── Sherlock ───────────────────────────────────────────────
     - name: Install Sherlock via pip
@@ -178,7 +138,7 @@
           192.168.10.10  www.famebook.com famebook.com
           192.168.10.10  www.postit.com postit.com
           192.168.10.10  www.myblogspot.com myblogspot.com
-          192.168.10.20  www.fileserver.com fileserver.com
+          192.168.10.10  www.fileserver.com fileserver.com
 
   # ─── MOD2: /etc/hosts entries for mod2 domains (inv1) ───────────
     - name: Add mod2 domain entries to /etc/hosts on inv1
@@ -199,7 +159,7 @@
 
 
 # ─────────────────────────────────────────────
-#  MACHINE 2 - lab1
+#  MACHINE 2 - lab1 (now also hosts everything that was on fs1)
 # ─────────────────────────────────────────────
 - name: init machine lab1
   hosts:
@@ -988,6 +948,106 @@
         cmd: a2ensite archivly.conf
         creates: /etc/apache2/sites-enabled/archivly.conf
 
+    # ─── Former fs1 content: case01 / module6 / case22 ──────────
+    - name: Create isolated case01 webroot
+      ansible.builtin.file:
+        path: /var/www/case01
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy case01 folder to isolated webroot
+      ansible.builtin.copy:
+        src: files/case01/
+        dest: /var/www/case01/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        directory_mode: '0755'
+
+    - name: Create Module6 webroot
+      ansible.builtin.file:
+        path: /var/www/module6/
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy Module6 folder to isolated webroot
+      ansible.builtin.copy:
+        src: files/Module6/
+        dest: /var/www/module6/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        directory_mode: '0755'
+
+    - name: Create case22 webroot
+      ansible.builtin.file:
+        path: /var/www/case22
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy case22 folder to webroot
+      ansible.builtin.copy:
+        src: files/case22/
+        dest: /var/www/case22/
+        owner: www-data
+        group: www-data
+        mode: '0644'
+        directory_mode: '0755'
+
+    # ─── Fileserver vhost: serves case01/module6/case22 for       ─
+    # ─── direct IP access (192.168.10.10), matched by exact IP so ─
+    # ─── it doesn't compete with the name-based vhosts above.     ─
+    - name: Deploy fileserver Apache vhost (case01/module6/case22)
+      ansible.builtin.copy:
+        dest: /etc/apache2/sites-available/000-fileserver.conf
+        mode: '0644'
+        content: |
+          <VirtualHost 192.168.10.10:80>
+              ServerName www.fileserver.com
+              ServerAlias fileserver.com
+
+              DocumentRoot /var/www/html
+              <Directory /var/www/html>
+                  Options -Indexes
+                  Require all denied
+              </Directory>
+
+              Alias /case01 /var/www/case01
+              <Directory /var/www/case01>
+                  Options +Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Alias /module6 /var/www/module6
+              <Directory /var/www/module6>
+                  Options +Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              Alias /case22 /var/www/case22
+              <Directory /var/www/case22>
+                  Options +Indexes +FollowSymLinks
+                  AllowOverride None
+                  Require all granted
+              </Directory>
+
+              ErrorLog  ${APACHE_LOG_DIR}/fileserver_error.log
+              CustomLog ${APACHE_LOG_DIR}/fileserver_access.log combined
+          </VirtualHost>
+
+    - name: Enable fileserver vhost
+      ansible.builtin.command:
+        cmd: a2ensite 000-fileserver.conf
+        creates: /etc/apache2/sites-enabled/000-fileserver.conf
+
     # ─── Disable default Apache vhost ───────────────────────────
     - name: Disable default Apache vhost
       ansible.builtin.command:
@@ -1020,6 +1080,7 @@
           192.168.10.10  www.famebook.com famebook.com
           192.168.10.10  www.postit.com postit.com
           192.168.10.10  www.myblogspot.com myblogspot.com
+          192.168.10.10  www.fileserver.com fileserver.com
 
     # ─── MOD2: /etc/hosts entries for mod2 domains (lab1) ───────
     - name: Add mod2 domain entries to /etc/hosts on lab1
@@ -1043,164 +1104,6 @@
         name: cron
         enabled: true
         state: started
-
-  # ─── Role ─────────────────────────────────────────────────────
-  roles:
-    - role: user-access
-      user_access_username: user
-      user_access_password: 'btcmp18@admin'
-      user_access_sudo: true
-
-
-# ─────────────────────────────────────────────
-#  MACHINE 3 - fs1 (File Server — hidden)
-# ─────────────────────────────────────────────
-- name: init machine fs1
-  hosts:
-    - fs1
-  become: true
-
-  tasks:
-
-  # ─── Disable unattended-upgrades ────────────────────────────
-    - name: Disable unattended-upgrades during provisioning
-      ansible.builtin.systemd:
-        name: unattended-upgrades
-        state: stopped
-      failed_when: false
-
-    - name: Kill leftover apt/dpkg processes
-      ansible.builtin.shell: |
-        pkill -9 apt || true
-        pkill -9 dpkg || true
-      changed_when: false
-      failed_when: false
-
-    - name: Wait for apt lock to be released
-      ansible.builtin.shell: >
-        while fuser /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock \
-        /var/cache/apt/archives/lock /var/lib/dpkg/lock >/dev/null 2>&1; do
-          sleep 3
-        done
-      changed_when: false
-      failed_when: false
-
-  # ─── APT packages ───────────────────────────────────────────
-    - name: Install Apache2
-      ansible.builtin.apt:
-        name:
-          - apache2
-        state: present
-        update_cache: 'yes'
-
-  # ─── Deploy case01 files to isolated webroot ─────────────────
-    - name: Create isolated case01 webroot
-      ansible.builtin.file:
-        path: /var/www/case01
-        state: directory
-        owner: www-data
-        group: www-data
-        mode: '0755'
-
-    - name: Copy case01 folder to isolated webroot
-      ansible.builtin.copy:
-        src: files/case01/
-        dest: /var/www/case01/
-        owner: www-data
-        group: www-data
-        mode: '0644'
-        directory_mode: '0755'
-# __ Achilleas edit start __ #
-    - name: Create Module6 webroot
-      ansible.builtin.file:
-        path: /var/www/module6/
-        state: directory
-        owner: www-data
-        group: www-data
-        mode: '0755'
-
-    - name: Copy Module6 folder to isolated webroot
-      ansible.builtin.copy:
-        src: files/Module6/
-        dest: /var/www/module6/
-        owner: www-data
-        group: www-data
-        mode: '0644'
-        directory_mode: '0755'
-    # __ Achilleas edit finish __ #
-
-        # ─── MOD2: case22 folder → fs1 webroot ──────────────────────
-    - name: Create case22 webroot on fs1
-      ansible.builtin.file:
-        path: /var/www/case22
-        state: directory
-        owner: www-data
-        group: www-data
-        mode: '0755'
-
-    - name: Copy case22 folder to fs1 webroot
-      ansible.builtin.copy:
-        src: files/case22/
-        dest: /var/www/case22/
-        owner: www-data
-        group: www-data
-        mode: '0644'
-        directory_mode: '0755'
-  # ─── Apache vhost: serve only /case01, deny root ─────────────
-    - name: Deploy fs1 Apache vhost
-      ansible.builtin.copy:
-        dest: /etc/apache2/sites-available/fs1.conf
-        mode: '0644'
-        content: |
-          <VirtualHost *:80>
-
-              DocumentRoot /var/www/html
-              <Directory /var/www/html>
-                  Options -Indexes
-                  Require all denied
-              </Directory>
-
-              Alias /case01 /var/www/case01
-              <Directory /var/www/case01>
-                  Options +Indexes +FollowSymLinks
-                  AllowOverride None
-                  Require all granted
-              </Directory>
-
-              Alias /module6 /var/www/module6
-              <Directory /var/www/module6>
-                  Options +Indexes +FollowSymLinks
-                  AllowOverride None
-                  Require all granted
-              </Directory>
-
-              Alias /case22 /var/www/case22
-              <Directory /var/www/case22>
-                  Options +Indexes +FollowSymLinks
-                  AllowOverride None
-                  Require all granted
-              </Directory>
-              
-              ErrorLog  ${APACHE_LOG_DIR}/fs1_error.log
-              CustomLog ${APACHE_LOG_DIR}/fs1_access.log combined
-          </VirtualHost>
-
-    - name: Enable fs1 vhost
-      ansible.builtin.command:
-        cmd: a2ensite fs1.conf
-        creates: /etc/apache2/sites-enabled/fs1.conf
-
-    - name: Disable default Apache vhost on fs1
-      ansible.builtin.command:
-        cmd: a2dissite 000-default.conf
-        removes: /etc/apache2/sites-enabled/000-default.conf
-
-  # ─── Enable and start Apache ─────────────────────────────────
-    - name: Enable and start Apache2
-      ansible.builtin.systemd:
-        name: apache2
-        enabled: true
-        state: restarted
 
   # ─── Role ─────────────────────────────────────────────────────
   roles:
