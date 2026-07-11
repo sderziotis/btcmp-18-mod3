@@ -1,8 +1,8 @@
 # Main topology
-name: btcmp-18-main-v4
+name: btcmp-18-main-v4.1
 hosts:
   - name: lab1
-    flavor: c2_r4_d40
+    flavor: c4_r4_d25
     base_box:
       image: xubuntu-noble-x86_64
       mgmt_user: ubuntu
@@ -10,7 +10,7 @@ hosts:
     hidden: true
 routers:
   - name: inv1
-    flavor: c2_r4_d40
+    flavor: c4_r4_d25
     base_box:
       image: xubuntu-noble-x86_64
       mgmt_user: ubuntu
