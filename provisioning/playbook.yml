@@ -135,19 +135,32 @@
         executable: /bin/bash
       changed_when: false
 
-# 2. Apply high-DPI scaling
-    - name: Get UID of target user
-      ansible.builtin.command: id -u user
-      register: user_uid
-      changed_when: false
+# 2. Apply high-DPI scaling (written directly to xfconf config file,
+    #    picked up automatically next time the XFCE session starts —
+    #    no live D-Bus session required during provisioning)
+    - name: Ensure xfconf config directory exists
+      ansible.builtin.file:
+        path: /home/user/.config/xfce4/xfconf/xfce-perchannel-xml
+        state: directory
+        owner: user
+        group: user
+        mode: '0755'
+        recurse: true
 
     - name: Set XFCE DPI to 170
-      become_user: user
-      ansible.builtin.command:
-        cmd: xfconf-query -c xsettings -p /Xft/DPI -s 170 --create -t int
-      environment:
-        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user_uid.stdout }}/bus"
-        DISPLAY: ":0"
+      ansible.builtin.copy:
+        dest: /home/user/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+        owner: user
+        group: user
+        mode: '0644'
+        content: |
+          <?xml version="1.0" encoding="UTF-8"?>
+
+          <channel name="xsettings" version="1.0">
+            <property name="Xft" type="empty">
+              <property name="DPI" type="int" value="170"/>
+            </property>
+          </channel>
 
 
     # ─── /etc/hosts entries for simulated domains (inv1) ────────
