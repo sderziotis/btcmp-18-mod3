@@ -135,6 +135,21 @@
         executable: /bin/bash
       changed_when: false
 
+# 2. Apply high-DPI scaling
+    - name: Get UID of target user
+      ansible.builtin.command: id -u user
+      register: user_uid
+      changed_when: false
+
+    - name: Set XFCE DPI to 170
+      become_user: user
+      ansible.builtin.command:
+        cmd: xfconf-query -c xsettings -p /Xft/DPI -s 170 --create -t int
+      environment:
+        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ user_uid.stdout }}/bus"
+        DISPLAY: ":0"
+
+
     # ─── /etc/hosts entries for simulated domains (inv1) ────────
     - name: Add simulated domain entries to /etc/hosts on inv1
       ansible.builtin.blockinfile:

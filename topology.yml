@@ -1,5 +1,5 @@
 # Main topology
-name: btcmp-18-main-v5
+name: btcmp-18-main-v6
 hosts:
   - name: lab1
     flavor: c2_r4_d40
