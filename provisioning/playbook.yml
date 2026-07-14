@@ -1168,7 +1168,7 @@
       user_access_sudo: true
 
 - name: Disable unattended apt upgrades
-  hosts: ssh_nodes:!windows_hosts
+  hosts: inv1,lab1,man
   become: true
   tasks:
     - name: Disable unattended upgrades in apt periodic config
