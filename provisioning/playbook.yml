@@ -68,6 +68,25 @@
         update_cache: 'yes'
 
 
+    # Disable Colord Authentication Login Popups
+    - name: Create Polkit rule to disable colord password prompts
+      ansible.builtin.copy:
+        content: |
+          polkit.addRule(function(action, subject) {
+              if ((action.id == "org.freedesktop.color-manager.create-device" ||
+                   action.id == "org.freedesktop.color-manager.create-profile" ||
+                   action.id == "org.freedesktop.color-manager.delete-device" ||
+                   action.id == "org.freedesktop.color-manager.delete-profile" ||
+                   action.id == "org.freedesktop.color-manager.modify-device" ||
+                   action.id == "org.freedesktop.color-manager.modify-profile") &&
+                  subject.isInGroup("{{ target_user }}")) {
+                  return polkit.Result.YES;
+              }
+          });
+        dest: "/etc/polkit-1/rules.d/45-allow-colord.rules"
+        mode: '0644'
+
+
     # ─── Sherlock ───────────────────────────────────────────────
     - name: Install Sherlock via pip
       ansible.builtin.pip:
@@ -1146,3 +1165,27 @@
       user_access_username: user
       user_access_password: 'btcmp18@admin'
       user_access_sudo: true
+
+- name: Disable unattended apt upgrades
+  hosts: ssh_nodes:!windows_hosts
+  become: true
+  tasks:
+    - name: Disable unattended upgrades in apt periodic config
+      copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          APT::Periodic::Update-Package-Lists "0";
+          APT::Periodic::Unattended-Upgrade "0";
+
+    - name: Disable apt daily timers
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+        masked: true
+      loop:
+        - apt-daily.timer
+        - apt-daily-upgrade.timer
